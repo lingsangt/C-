@@ -1,0 +1,250 @@
+*
+Name: Ling-Sang Tse
+Title: Roberto
+Teacher: Mr. Sze
+Course: ICS 4U1
+Due date: Tuesday February 2, 2010
+Description:
+This robot, called Roberto, is programmed for robocode.
+The robot has special strategies (which will not be mentioned here in detail for security purposes) to help it survive.
+Since the robot loses energy points every time it hits a wall, the robot tries to avoid hitting the wall after hitting it the first time.
+Roberto fires when it sees an enemy.
+When Roberto wins, it shows off its victory dance.
+Variable Dictionary:
+movingForward (boolean): whether the robot will move forward or not
+turnDirection (int): whether the robot will turn clockwise or counterclockwise
+bearing1 (double): bearing of the enemy in the last position saw
+bearing2 (double): bearing of the enemy currently
+*/
+
+//package
+package LT;
+
+//import library files
+import robocode.*;
+import robocode.ScannedRobotEvent;
+import java.awt.*;
+
+/**
+ * The Advanced Robot Roberto by Ling-Sang Tse
+ */
+public class Roberto extends AdvancedRobot
+{
+    //Variable Declaration
+    boolean movingForward;
+    int turnDirection = 1;
+    double bearing1 = 0, bearing2 = 0;
+
+    /**
+      * run method: Roberto's default behavior
+      */
+    public void run ()
+    {
+        //Sets Roberto's colours
+        setBodyColor (Color.blue);
+        setGunColor (Color.blue);
+        setRadarColor (Color.black);
+        setScanColor (Color.yellow);
+
+        //loops throughout the game when it's not doing something else
+        while (true)
+        {
+            //checks to see if it's close to a wall
+            turnFromWall ();
+            setTurnRight (1000);
+            setMaxVelocity (10);
+            ahead (1000);
+        }
+    }
+
+
+    /**
+      * turnFromWall method: called when Roberto is near the wall or has hit a wall
+      * turns away from the wall and heads away from the wall a certain distance
+      */
+    public void turnFromWall ()
+    {
+        //If Roberto is near or has hit the upper wall
+        if (getY () < 50)
+        {
+            turnRight (360 - getHeading ());
+            ahead (180);
+        }
+
+        //If Roberto is near or has hit the lower wall
+        if (getY () > 750)
+        {
+            turnRight (180 - getHeading ());
+            ahead (180);
+        }
+
+        //If Roberto is near or has hit the left wall
+        if (getX () < 50)
+        {
+            turnRight (450 - getHeading ());
+            ahead (180);
+        }
+
+        //If Roberto is near or has hit the right wall
+        if (getX () > 950)
+        {
+            turnRight (270 - getHeading ());
+            ahead (180);
+        }
+    }
+
+
+    /**
+      * onHitWall method: called when Roberto has hit a wall
+      */
+    public void onHitWall (HitWallEvent e)
+    {
+        turnFromWall ();
+    }
+
+
+    /**
+     * onScannedRobot: What to do when Roberto sees another robot
+     */
+    public void onScannedRobot (ScannedRobotEvent e)
+    {
+        //points bearing1 to the bearing of the enemy last seen and points bearing2 to the current bearing of the enemy robot
+        bearing2 = bearing1;
+        bearing2 = e.getBearing ();
+
+        //If the enemy robot hasn't changed its bearing from the last scan
+        if (bearing2 == bearing1)
+        {
+            //Fire directly at it
+            fire (10);
+
+            //If Roberto has more energy than the enemy robot, then keep firing
+            if (e.getEnergy () < getEnergy ())
+            {
+                fire (10);
+                scan ();
+            }
+
+            //If Roberto doesn't have more energy than the enemy robot, then try to back out
+            else
+            {
+                setTurnLeft (1000);
+                setMaxVelocity (10);
+                back (1000);
+            }
+        }
+
+        //If the enemy robot changed its bearing from the last scan, then just fire at it
+        else
+        {
+            smartFire (e.getDistance ());
+        }
+    }
+
+
+    /**
+      * smartFire method: Roberto fires at the enemy
+      */
+    public void smartFire (double robotDistance)
+    {
+        //If Roberto's gun heat is zero, fire at a power depending on its distance away from the enemy
+        if (getGunHeat () == 0)
+        {
+            //If the enemy is really close
+            if (robotDistance <= 100)
+            {
+                fire (3);
+            }
+
+            //If the enemy is further
+            else if (robotDistance <= 200 && robotDistance > 100)
+            {
+                fire (2);
+            }
+
+            //If the enemy is still further
+            else if (robotDistance < 500 && robotDistance > 200)
+            {
+                fire (1);
+            }
+
+            //If the enemy is far
+            else
+            {
+                fire (0.1);
+            }
+        }
+
+        //check whether the enemy has moved
+        scan ();
+    }
+
+
+    /**
+      * onHitRobot method: called when Roberto hits another Robot
+      */
+    public void onHitRobot (HitRobotEvent e)
+    {
+        //turns Roberto toward the enemy
+        if (e.getBearing () >= 0)
+        {
+            turnDirection = 1;
+        }
+        else
+        {
+            turnDirection = -1;
+        }
+        turnRight (e.getBearing ());
+
+        //Fire at the enemy
+        fire (3);
+
+        //hits onto the robot again
+        ahead (40);
+    }
+
+
+    /**
+      * onWin method: called when Roberto wins
+      * The victory dance has 5 main non-repeating moves that lasts at least 3 seconds.
+      * Roberto changes its colour every move.
+      */
+    public void onWin (WinEvent e)
+    {
+        //First move
+        setBodyColor (Color.red);
+        //turns left and right
+        for (int i = 0 ; i < 3 ; i++)
+        {
+            turnLeft (3);
+            turnRight (3);
+        }
+
+        //Second move
+        setBodyColor (Color.yellow);
+        setTurnLeft (15);
+        setMaxVelocity (10);
+        ahead (15);
+
+        //Third move
+        setBodyColor (Color.blue);
+        setTurnRight (15);
+        setMaxVelocity (10);
+        ahead (15);
+
+        //Fourth move
+        setBodyColor (Color.white);
+        //moves back and ahead
+        for (int i = 0 ; i < 3 ; i++)
+        {
+            back (3);
+            ahead (3);
+        }
+
+        //Fifth move
+        setBodyColor (Color.black);
+        setTurnLeft (40);
+        setMaxVelocity (10);
+        back (40);
+    }
+}
