@@ -1,0 +1,423 @@
+/*
+
+
+This linkedlist1 code is taken from the lecture notes and was
+modified to resemble a stack.
+A few functions were removed and the necessary functions were kept
+and modified.
+Push and pop were modified to fulfill their functions.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+listitem * get_node(listitem * li, int i)
+{
+  if (i == 0)
+    return li;
+
+  return get_node(li->next, i-1);
+}
+
+
+
+/* List operations ("external") */
+
+list * new_list()
+{
+  list * l = (list *)malloc(sizeof(list));
+  l->elements = 0;
+  l->head = NULL;
+  l->tail = NULL;
+  return l;
+}
+
+
+
+
+void delete_list(list * l)
+{
+  free_nodes(l->head);
+  free(l);
+}
+
+//Puts the item value onto the top of the list
+void push(list * l, int _value)
+{
+  listitem * li = new_item(_value);
+
+  if (l->elements == 0)
+  {
+    l->head = li;
+    l->tail = li;
+  }
+  else
+  {
+    l->tail->next = li;
+    l->tail = li;
+  }
+  l->elements++;
+}
+
+
+
+//Takes the top item off the list
+void pop (list * l)
+{
+  l->tail = get_item(l, l -> elements-1);
+  delete_node_byindex(&(l->tail), 0);
+  l->elements--;
+
+}
+
+listitem * get_item(list * l, int i)
+{
+  return (i < 0 ? NULL : get_node(l->head, i));
+}
+
+unsigned int get_size(list * l)
+{
+  return l->elements;
+}
+
+
+/*
+Name: Ling-Sang Tse
+tselings
+998477303
+
+This linkedlist1 is taken from the lecture notes and was
+modified to resemble a stack.
+A few functions were removed and the necessary functions were kept
+and modified.
+*/
+
+#ifndef __LINKEDLIST1_H__
+#define __LINKEDLIST1_H__
+
+typedef struct __listitem {
+
+  int value;
+  struct __listitem * next;
+
+}
+listitem;
+
+typedef struct __list {
+
+  unsigned int elements;
+  listitem * head;
+  listitem * tail;
+}
+list;
+
+/* list operations */
+
+list * new_list();
+void delete_list(list * l);
+void push(list * l, int _value);
+void pop (list * l);
+listitem * get_item(list * l, int i);
+unsigned int get_size(list * l);
+
+
+#endif
+
+/*
+Name: Ling-Sang Tse
+tselings
+998477303
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include "linkedlist1.h"
+
+#define NUM(a) (a<= '9' && a >= '0')
+
+//Evaluates the binary expression
+int calc (int num1, int OP, int num2)
+{
+    if (OP == '+')
+    {
+        return (num1+=num2);
+    }
+    else if (OP == '-')
+    {
+        return (num1-=num2);
+    }
+    else if (OP == '*')
+    {
+        return (num1*=num2);
+    }
+    else if (OP == '/')
+    {
+        return (num1/=num2);
+    }
+    else
+    {
+        fprintf(stderr, "Error: invalid input.\n");
+        return 0;
+    }
+
+}
+
+
+int main()
+{
+    int counter = 1;
+
+    /*
+    op2, countb, and countb2 are variables needed for errortrapping.
+    Details are in the README file.
+    */
+    int op1 = 0, op2 = 1, countb = 1, countb2 = 0, answer = 0;
+
+    list * l = new_list();
+
+    char strin;
+    for (;;)
+    {
+        strin = fgetc (stdin);
+
+        //If it is a number between one and nine
+        if (NUM(strin))
+        {
+            char strnum[32] = "";
+
+            counter = 0;
+
+            //Errortrapping - If a number was just entered
+            if (op2 == 0)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+
+            //keeps on reading the next char until a non-number is read
+            //Stores the digits into a string and counter keeps track of the
+            //length of the number
+            while (NUM(strin))
+            {
+                //Cannot be spaces between numbers
+                if (strin == ' ')
+                {
+                    fprintf(stderr, "Error: invalid input.\n");
+                    return 1;
+                }
+
+                strnum[strlen(strnum)] = strin;
+                counter++;
+                strin = getchar();
+            }
+
+            //Dynamically allocates memory for the number, pushes the
+            //number onto the stack, then frees it
+            int *num = (int *) malloc(counter * sizeof(int));
+            *num = atoi(strnum);
+
+            if (*num > 50 || *num < 1)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+            push(l, *num);
+            op2 = 0;
+            free (num);
+
+        }
+
+        /*
+        If it is an operation (+, -, *, /), then it pushes it onto the stack.
+        If it is a closed bracket, it evaluates the items from the last
+        closed bracket (which consists a number, then an operation, then
+        a number).
+        */
+        if (strin == '(')
+        {
+            countb++;
+            countb2++;
+        }
+        else if (strin == '+')
+        {
+            //If it is invalid to take an operation at this point
+            if (countb == 0 || op2 == 1)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+            push(l, '+');
+            op2 = 1;
+            countb--;
+        }
+
+        else if (strin == '-')
+        {
+            //If it is invalid to take an operation at this point
+            if (countb == 0 || op2 == 1)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+            push(l, '-');
+            op2 = 1;
+            countb--;
+        }
+
+        else if (strin == '*')
+        {
+            //If it is invalid to take an operation at this point
+            if (countb == 0 || op2 == 1)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+            push(l, '*');
+            op2 = 1;
+            countb--;
+        }
+
+        else if (strin == '/')
+        {
+            //If it is invalid to take an operation at this point
+            if (countb == 0 || op2 == 1)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+            push(l, '/');
+            op2 = 1;
+            countb--;
+        }
+
+        else if (strin == ')')
+        {
+            //If there isn't an open bracket before this
+            if (countb2 == 0)
+            {
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+            }
+            else
+            {
+
+                int num2 = get_item (l, get_size (l)-1)-> value;
+                pop (l);
+
+                int OP = get_item (l, get_size (l)-1)-> value;
+                pop (l);
+
+                int num1 = get_item (l, get_size (l)-1)-> value;
+                pop (l);
+
+                num1 = calc (num1, OP, num2);
+
+                push (l, num1);
+
+            }
+            countb2--;
+
+        }
+        else if (strin == '\n'|| strin == ' ')
+        {
+            continue;
+        }
+        else if (strin == EOF)
+        {
+            //if the brackets didn't add up
+            if (countb2 != 0)
+            {
+
+                fprintf(stderr, "Error: invalid input.\n");
+                return 1;
+
+            }
+            break;
+        }
+        else
+        {
+            fprintf(stderr, "Error: invalid input.\n");
+            return 1;
+        }
+
+    }
+
+    //If there's a binary expression left
+    if (get_size (l) == 3)
+    {
+        int num2 = get_item (l, get_size (l)-1)-> value;
+        pop (l);
+
+        int OP = get_item (l, get_size (l)-1)-> value;
+        pop (l);
+
+        int num1 = get_item (l, get_size (l)-1)-> value;
+        pop (l);
+
+        num1 = calc (num1, OP, num2);
+
+        answer = num1;
+    }
+    //If a single constant is left
+    else if (get_size (l) == 1)
+    {
+        answer = get_item (l, get_size (l)-1)-> value;
+    }
+    else
+    {
+
+        fprintf(stderr, "Error: invalid input.\n");
+        return 1;
+    }
+
+    printf ("%d\n", answer);
+    delete_list(l);
+
+    return 0;
+}
+
+Name: Ling-Sang Tse
+Student Number: 998477303
+tselings
+
+To compile:
+
+To run:
+
+Summary of the program:
+This program evaluates a binary expression and prints out the answer (or "Error: invalid input." if there is an error in the input). 
+
+Details:
+This program reads in from a file character by character until 'eof' is read.
+
+If a number between 0-9 is read, it keeps on reading the next char until a non-number is read (or outputs an error if a space is read). 
+It stores the digits in a string as it reads. When a non-number is read, it converts the string into an dynamically allocated int
+and pushes then int onto the stack, then frees the int. 
+
+If an operation is read, it pushes it onto the stack. 
+
+If a closed bracket is read, it evaluates the past three items in the stack (which consists of a number, then an operation, then a 
+number). 
+
+When the 'eof' char is read, it exits the loop and evaluates the last remaining binary expression (or it may be just a constant) in 
+the stack and outputs the final answer. 
+
+The program errortraps as it reads the input. It makes sure that the input is a valid binary expression and doesn't contain any 
+non-requested input.     
+
+Various variables are used for errortrapping:
+
+-countb2 makes sure that the brackets add up. It increases by one when it's an open bracket
+and decreases by one when it's a closed bracket. At the end, op1 should be zero.
+
+-op2 keeps track of when it is valid to take more numbers. It is true when the 
+last char was an operation or an open bracket and false otherwise.
+
+- Also, both op2 and countb1 keeps track of when it is valid to take an operation.
+Coutb1 keeps of the number of open brackets, since there cannot be more operations than open brackets. 
+It is valid to take an operation when op2 is false countb is not 0 (zero indicates that there aren't enough open brackets).
+
+Note: The stack structure uses the linkedlist code provided in the lecture notes. 

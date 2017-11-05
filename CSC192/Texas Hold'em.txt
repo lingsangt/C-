@@ -1,0 +1,192 @@
+
+
+To compile:
+gcc -Wall -o a4 a4.c texasholdem.c pokerlib.c
+
+To run:
+./a4 
+
+Summary of the program:
+This program calculates the probability of which player will
+win the texas holdem poker game. 
+
+It recurses through all the possibilites of the 
+remaining cards in the deck and tallies up the number wins 
+for each player. 
+
+Details:
+This program reads in the the cards that are in each players' hands stores in
+arrays. It also reads in the cards that are on the board and stores it on 
+another array. 
+
+It then constructs a deck of cards that contains the remaining cards on the 
+decks. For each card on the deck, it calls a recursive function that 
+recurses through all the outcome possibilities and keeps track of the 
+number of wins for each player and the number of ties. 
+
+Based on the number of wins for each player and the number of ties, the 
+program calculates the probability of winning for each of the two players
+and outputs the probabilities. 
+
+
+
+Works for all sample input and comments
+
+/*
+Name: Ling-Sang Tse
+Student Number: 998477303
+tselings
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "texasholdem.h"
+
+//returns a to the exponent of b
+double power (short a, short b)
+{
+    short x, total = 1;
+    for ( x = 0; x < b; x++)
+    {
+        total = total*a;
+    }
+    return total;
+}
+
+
+//copies arr1 onto arr2 by value
+void copyArray (int arr1[], int arr2[], int length)
+{
+    int x;
+    for (x=0; x < length; x++)
+    {
+        arr2[x] = arr1 [x];
+    }
+}
+
+//The recursive function that recurses through all the possibilities
+void recurse (int p1hand [], int p2hand [], int board[], int deck [],
+              short numCardsOnBoard, short *w1, short *w2, short *tie,
+              short total, short sizeOfDeck, int currCard)
+{
+    //If base case is met
+    if (*w1 + *w2 + *tie == total)
+        return;
+
+    //Puts the card from the deck onto the board
+    board [numCardsOnBoard] = deck [currCard];
+
+    //Removes the current card
+    int x;
+    for (x = currCard; x < sizeOfDeck -1; x++)
+    {
+        deck [x] = deck [x+1];
+    }
+    (sizeOfDeck)--;
+
+    numCardsOnBoard++;
+
+    //calls showdown if there are 5 cards on the board
+    if (numCardsOnBoard == 5)
+    {
+
+        int result;
+        result = showdown (p1hand, p2hand, board);
+        if (result == 1)
+        {
+            (*w1)++;
+        }
+        else if (result == 2)
+        {
+            (*w2)++;
+        }
+        else
+        {
+            (*tie)++;
+        }
+        return;
+    }
+
+    //recurses through the rest of the cards in the deck
+    for (x=0; x< sizeOfDeck; x++)
+    {
+        int *tempBoard = (int *) malloc (5*sizeof (int));
+        int *tempDeck = (int *) malloc (sizeOfDeck*sizeof (int));
+
+        copyArray(board, tempBoard, 5);
+        copyArray(deck, tempDeck, sizeOfDeck);
+
+        recurse (p1hand, p2hand, tempBoard, tempDeck, numCardsOnBoard,
+                 w1, w2, tie, total, sizeOfDeck,x);
+    }
+
+
+}
+
+
+
+int main ()
+{
+
+    short numCardsOnBoard = 0, numCardsOnDeck =0, x = 0;
+    short w1 = 0, w2 = 0, tie = 0, total = 0;
+
+    int* p1hand = (int *) malloc (5*sizeof (int));
+    int* p2hand = (int *) malloc (5*sizeof (int));
+    int* board = (int *) malloc (5*sizeof (int));
+    char strinput [64]= "\0";
+
+    char * retval;
+
+    //gets inputs
+    retval = fgets(strinput, 64, stdin);
+    p1hand[0]  = str2card (strinput);
+
+    retval = fgets(strinput, 64, stdin);
+    p1hand[1]  = str2card (strinput);
+
+    retval = fgets(strinput, 64, stdin);
+    p2hand[0]  = str2card (strinput);
+
+    retval = fgets(strinput, 64, stdin);
+    p2hand[1]  = str2card (strinput);
+
+    retval = fgets(strinput, 64, stdin);
+    numCardsOnBoard = atoi (strinput);
+
+
+    numCardsOnDeck = 48 - numCardsOnBoard;
+
+    total = power (numCardsOnDeck, 5-numCardsOnBoard);
+
+    int *deck = (int *) malloc (numCardsOnDeck*sizeof (int));
+
+    //sets the values of the cards on the board to -1
+    for (x = 0; x < 5; x++)
+    {
+        board [x] = -1;
+    }
+
+    //sets the value of the cards on the board based on the input
+    for (x = 0; x < numCardsOnBoard; x++)
+    {
+        retval = fgets(strinput, 64, stdin);
+        board[x]  = str2card (strinput);
+    }
+
+    int counter = 0;
+
+    //initializes the deck
+    for (x=0; x < 52; x++)
+    {
+        //If the card is still in the deck
+        if (x!= p1hand[0] && x!= p1hand[1] && x!= p2hand[0] && x!= p2hand[1]&&
+            x!= board[0] && x!= board[1] && x!= board[2] && x!= board[3])
+            {
+
+                deck [counter] = x;
+                counter++;
+            }
+    }
+
+    //recurses through the cards on the board

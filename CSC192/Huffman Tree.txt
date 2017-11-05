@@ -1,0 +1,510 @@
+/*
+Name: Ling-Sang Tse
+
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <string>
+
+#include "HuffmanTree.h"
+#include "Queue.h"
+
+using namespace std;
+
+#define MAX_LINE_LEN     1024
+#define NUMCHAR 127
+#define check   assert (2==3);
+
+//If file does not open
+void exiterror(int errlevel, char * str, FILE * f1, FILE * f2)
+{
+  if (f1 != NULL) fclose(f1);
+  if (f2 != NULL) fclose(f2);
+  fprintf(stderr, "%s\n", str); exit(errlevel);
+}
+
+/*
+Recurses through the tree for Step 5.
+It passes through every node and assigns the code to each node.
+*/
+void recurse (HuffmanTreeNode *root,  string _code, string codes [])
+{
+
+    //If it is not an internal node, then it assigns a code
+    if (root-> get_internalNode () == 0)
+    {
+        codes [root-> getChar ()] = _code;
+
+    }
+
+    //If this node has a right child, it appends "1" to the code and
+    //recurses for the right child
+     if (root -> get_right() != NULL)
+     {
+
+         _code += "1";
+         recurse (root -> get_right (),_code, codes);
+
+     }
+
+    //If this node has a left child, it appends "0" to the code and
+    //recurses for the left child
+    if (root -> get_left () != NULL)
+    {
+
+        //If there was a left child, it would've appended "1" to the code,
+        //so it needs to be deleted first
+ if (root -> get_right() != NULL)
+     {
+         _code = _code.substr (0, _code.length () -1);
+     }
+        _code += "0";
+        recurse (root -> get_left (), _code, codes);
+    }
+
+
+
+}
+
+int main(int argc, char * argv[])
+{
+  char c;
+
+  int count = 0, x;
+    count = 0;
+
+  float *frequency = (float *) malloc (NUMCHAR * sizeof (float));
+    string codes [NUMCHAR];
+
+    //initializes all of the frequency to zero
+  for (x = 0; x< NUMCHAR; x++)
+  {
+      frequency [x] = 0;
+  }
+
+  if (argc != 2)
+    exiterror(1, "Usage: ./fileio1 <infile>",
+              NULL, NULL);
+
+  FILE * rfile = fopen(argv[1], "r");
+  if (rfile == NULL)
+    exiterror(2, "Cannot open input file for reading", NULL, NULL);
+
+c = getc (rfile);
+
+    //Step 1
+    //Counts the frequency of each char
+  while (c != EOF)
+  {
+
+    frequency [c]++;
+    count++;
+        c = getc (rfile);
+
+  }
+
+    //Calculates the probability of each char by dividing
+    //each frequency with the total count
+  for (x = 0; x< NUMCHAR; x++)
+  {
+      if (frequency [x] != 0)
+        frequency [x] /= count;
+  }
+
+
+    //Step2
+    Queue * queue = new Queue ();
+
+    //Enqueues the chars if the frequency is greater than 0
+  for (x = 0; x< NUMCHAR; x++)
+  {
+      if (frequency [x] > 0)
+      {
+        HuffmanTreeNode * newNode = new HuffmanTreeNode (frequency [x], x);
+        queue -> enqueue (newNode, 1 - frequency [x]);
+
+    }
+  }
+
+    //Step 3
+    HuffmanTreeNode * n1;
+    HuffmanTreeNode * n2;
+
+    /*
+    While the size of  the queue is greater than two, it
+    dequeues the next two nodes, creates a new node with
+    a probability of the sum of the two dequeued nodes,
+    and inserts the new node back into the priority queue.
+    */
+    while (queue -> get_size () >=2 )
+    {
+         n1 = queue -> dequeueMax ();
+         n2 = queue -> dequeueMax ();
+        HuffmanTreeNode * newNode = new HuffmanTreeNode ();
+        newNode -> setProbability (n1 -> getProbability ()  + n2 -> getProbability ());
+        newNode -> set_left (n1);
+        newNode -> set_right (n2);
+        newNode -> set_internalNode (1);
+
+        queue -> enqueue  (newNode, newNode -> get_priority());
+
+    }
+
+    //Step 4 - Dequeues the last node
+   HuffmanTreeNode * root = queue -> dequeueMax ();
+
+   //Step 5 - recurses through the tree to add the code to each char
+  recurse (root, "", codes);
+
+    //Step 6
+   rfile = fopen(argv[1], "r");
+
+ c = getc (rfile);
+    //re-reads the file and outputs the code for each char
+  while (c != EOF)
+  {
+
+      cout << codes [c+0] << " ";
+ c = getc (rfile);
+
+  }
+
+cout << endl;
+
+  free (frequency);
+   delete queue;
+  return 0;
+}
+
+/*
+Name: Ling-Sang Tse
+tselings
+998477303
+
+This implements the rest of the code for the Queue class.
+Most of the code from this file was taken from pqueue.cpp from Marc's
+Code Listings, except the variable names have been changed to
+match the purpose.
+*/
+
+#include "Queue.h"
+#include <stdio.h>
+
+#include <cassert>
+
+Queue::Queue()
+{
+    back = NULL;
+    front = NULL;
+    size = 0;
+}
+
+void Queue::destroyItems(HuffmanTreeNode * node)
+{
+    if (node == NULL)
+    return;
+
+    destroyItems(node->get_next());
+
+    delete node;
+}
+
+bool Queue::is_empty()
+{
+    return (size == 0);
+}
+
+unsigned int Queue::get_size()
+{
+    return size;
+}
+
+
+void Queue::enqueue(HuffmanTreeNode * n, float _priority)
+{
+
+    if (size == 0)
+    back = front = n;
+    else if (front->get_priority() <= _priority)    // check one end
+    {
+    // put it at the front
+    n->set_prev(front);
+    front->set_next(n);
+    front = n;
+    assert(front->get_prev() != NULL);
+
+    }
+
+    else if (_priority <= back->get_priority())    // check the other
+    {
+    // put at back
+    n->set_next(back);
+    back->set_prev(n);
+    back = n;
+    } else            // must have >= 2 items if we get here
+    {
+    HuffmanTreeNode *cur_item = back->get_next();
+    while (cur_item != NULL) {
+        if (cur_item->get_prev()->get_priority() <= _priority && cur_item->get_priority() >= _priority) {
+        // found the right spot to insert it
+        n->set_next(cur_item);
+        n->set_prev(cur_item->get_prev());
+        cur_item->set_prev(n);
+        n->get_prev()->set_next(n);
+        break;
+        }
+
+        cur_item = cur_item->get_next();
+
+    }
+
+    }
+
+    size++;
+}
+
+
+HuffmanTreeNode * Queue::dequeueMax()
+{
+  assert(size > 0);
+
+  HuffmanTreeNode * n = front;
+
+  if (size == 1)
+  {
+    back = front = NULL;
+  }
+  else
+  {
+    front = front->get_prev();
+    front->set_next(NULL);
+  }
+
+  size--;
+
+  return n;
+}
+
+
+/*
+Name: Ling-Sang Tse
+tselings
+998477303
+
+The code from this Queue class was mainly taken from the lecture notes and was
+modified as necessary.
+*/
+
+
+#ifndef __QUEUE_H__
+#define __QUEUE_H__
+
+#include "HuffmanTree.h"
+
+class Queue
+{
+    HuffmanTreeNode *back;
+    HuffmanTreeNode *front;
+    unsigned int size;
+
+  // private (internal) method
+  void destroyItems(HuffmanTreeNode * node);
+
+public:
+
+  Queue();
+
+  ~Queue() { destroyItems(back);}
+
+  void enqueue(HuffmanTreeNode *n, float _priority);
+
+  HuffmanTreeNode* getFront ()
+  {
+      return front;
+  }
+
+
+  HuffmanTreeNode* dequeueMax ();
+  bool is_empty();
+  unsigned int get_size();
+};
+
+#endif
+
+/*
+Name: Ling-Sang Tse
+tselings
+998477303
+
+This defines the HuffmanTree class
+*/
+
+
+#ifndef __HUFFMANTREE_H__
+#define __HUFFMANTREE_H__
+
+#include <stdlib.h>
+
+class HuffmanTreeNode
+{
+    //private variables
+    char character;
+    float probability;
+    bool internalNode;
+    HuffmanTreeNode *qnext;
+    HuffmanTreeNode *qprev;
+
+    HuffmanTreeNode * left_child;
+    HuffmanTreeNode * right_child;
+
+    //public functions
+    public:
+        HuffmanTreeNode ();
+         HuffmanTreeNode (float _prob, char _char)
+        {
+            probability = _prob;
+            character = _char;
+            qnext = NULL;
+            qprev = NULL;
+            internalNode = 0;
+        }
+
+        //Accessor functions
+        char getChar ();
+        float getProbability();
+        float get_priority ();
+        HuffmanTreeNode* get_next () {return qnext;};
+        HuffmanTreeNode* get_prev () {return qprev;};
+        HuffmanTreeNode * get_left() { return left_child; }
+        HuffmanTreeNode * get_right() { return right_child; }
+        bool get_internalNode() { return internalNode; }
+
+        //Mutator functions
+        void setChar (char _char);
+        void setProbability (float _freq);
+        void set_next (HuffmanTreeNode *_qnext) {qnext = _qnext;}
+        void set_prev (HuffmanTreeNode *_qprev) {qprev = _qprev;}
+        void set_left(HuffmanTreeNode * _node) { left_child = _node; }
+        void set_right(HuffmanTreeNode * _node) { right_child = _node; }
+         void set_internalNode (bool _internalNode) { internalNode = _internalNode; }
+
+
+};
+
+#endif
+
+
+/*
+Name: Ling-Sang Tse
+tselings
+998477303
+
+This implements the rest of the code for the HuffmanTree class
+*/
+
+
+
+#include "HuffmanTree.h"
+
+HuffmanTreeNode :: HuffmanTreeNode ()
+ {
+     character = 0;
+     internalNode = 0;
+    probability = 0;
+}
+
+char HuffmanTreeNode :: getChar ()
+{
+
+    return character;
+}
+
+float HuffmanTreeNode :: getProbability()
+{
+    return probability;
+}
+
+float HuffmanTreeNode :: get_priority ()
+{
+    return (1 - probability);
+}
+
+void HuffmanTreeNode :: setChar (char _char)
+{
+    character = _char;
+}
+
+void HuffmanTreeNode :: setProbability (float _prob)
+{
+    probability = _prob;
+}
+
+
+Name: Ling-Sang Tse 
+Student Number: 998477303 
+tselings 
+ 
+To compile: g++ -Wall -o a5 a5.cpp HuffmanTree.cpp Queue.cpp
+ 
+To run: ./a5 input1.txt 
+
+Purpose of the Program:
+This program compresses the contents of a file and outputs the compressed
+code. 
+ 
+Description of the Program:
+
+This program follows 6 main steps: 
+
+Step 1: 
+This program reads in from a file character by character until 'eof' is read.
+
+It uses the array "frequency," which has 127 elements for the 127 ASCII 
+characters, to keep track of the frequency of each character. At the 
+same time, it also keeps track of the total count of characters. 
+
+It then divides each character's frequency by the total count to 
+obtain the probability of each character. 
+
+Step 2:
+This program creates a priority queue from the Queue class. For 
+each of the character that has a frequency greater than zero (meaning that
+it appeared in the document at least once), it creates a HuffmanTreeNode
+with the probabtility and the character. The program than enqueues the HuffmanTreeNode into the priority queue 
+based on its probability. 
+
+Step 3:
+While the priority queue still has two HuffmanTreeNodes, the program 
+dequeues the first two nodes in the priority queue. The program than 
+creates a new HuffmanTreeNode with the sum of the probabilities of the 
+two HuffmanTreeNodes just dequeued, and sets the first dequeued node 
+as the left child of the new HuffmanTreeNode and the second dequeued 
+node as the right child. 
+
+Step 4:
+After step 3 has taken place, there will only be one node left in the 
+priority queue. That node is dequeued and made the root of the HuffmanTree. 
+
+Step 5:
+The program than recurses through the Huffman Tree adding the code to each
+character in the array "codes" created at the beginning of the program. 
+The array "codes" has 127 elements, one for each ASCII value, and each of 
+the characters that appear in the document will have the code in its 
+array element. 
+
+The recursion begins with the root node and a blank code (called _code
+in the program). 
+
+If the node is not an internal node created in step 3, then _code is added for that charcter into the array of codes. If that node has a right child, it adds "1" to _code and recurses through that right child, and likewise for the
+left child. 
+
+The program recurses until all of the leaves have been reached. At that 
+point, all of the characters that appear in the document will have a code
+assigned to the array of codes. 
+
+Step 6:
+The program re-reads the document. For each character, the program
+prints out its code based on the code assigned in the array of codes. 
