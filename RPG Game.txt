@@ -1,0 +1,920 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+
+class Player
+{
+      
+      public: 
+              Player (string namein);
+              int getLevel () {return level;};
+              int getPoints () {return points;};
+              string getName () {return name;};
+              void addLevel () {level++;};
+              void addPoints (int numpoints) {points += numpoints;}; 
+              void subtractPoints (int numpoints) {points -= numpoints;}; 
+              
+      private:
+              string name;
+              int points;
+              int level;
+}; 
+
+Player :: Player (string namein) {
+       name = namein;
+       level = 0;
+       points = 0;
+}
+
+class Items
+{
+      public:
+              Items ();
+              string getQuestion (int place) {
+                  return question [place-1];
+              };
+              int getAnswer (int place) {return answer [place-1];};
+      private:
+              string question [15];
+              int answer [15];
+};
+
+Items :: Items () {
+       question[0] = "Remove my first 3 letters and you have something for catching sea creatures. \nRemove my last 2 letters, and you have a detailed program. What am I? \n\n1) planet \n2) pothook \n3) skyhook \n4) probate \n5) maypole \n6) none of the above";
+       answer[0] = 1;
+       question [1]= "I am the muse of love poetry, and my first 3 letters are a period of time. Who \nam I? \n\n1) Agememnon \n2) Daytona\n3) Secundo \n4) Erato\n5) Decamerone \n6) Museum";
+       answer [1] = 4;
+       question[5] = "I'm a dog. I'm not squeezing you, but I am if you remove a letter in the second part of my name. What am I? \n\n1) chiwawa \n2) borzoi \n3) wolfhound \n4) pinscher \n5) pit bull \n6) none of the above";
+       answer[5] = 4;
+       question[6] = "I am the result of a harmful thing that is done. I do not indicate that someone is among 12 people deciding the outcome of something. What am I? \n\n1) insult \n2) pain \n3) suffering \n4) injury \n5) trauma \n6) none of the above";
+       answer[6] = 4;
+       question[7] = "I am something you receive free of charge. Remove my first letter and then read me backwards, and you have a musical instrument. What am I? \n\n1) freebie \n2) cuffo \n3) gratis \n4) handout \n5) visa \n6) none of the above";
+       answer[7] = 3;
+       question[8] = "Determine what letter should replace the question mark in this series: Y Y H L Y E Y T R R R ? \n\n1) R \n2) S \n3) T \n4) U \n5) V \n6) none of the above";
+       answer[8] = 1;
+       question[9] = "I'll give you hints at two words. The second word hinted at is the same as the first word, but with one letter removed.\n\nExample: They all taste great, but you like one more than the others.\n\nAnswers: FLAVOR and FAVOR.\n\nThe sound gave the band just the right punch. \n\n1) oompah and oomph \n2) kaboom and k'boom \n3) scales and scale \n4) spunch and punch \n5) blast and blat \n6) noise and nose";
+       answer[9] = 1;
+       question[12] = "Flip me upside down or read me backwards, and you have the same thing. Remove one of me, and you have what a famous Henry was. If you instead remove the other of me, and turn me on my side, you could try to count to me, but would never arrive. What am I? \n\n1) 11 \n2) 55 \n3) 88 \n4) 101 \n5) 1001 \n6) none of the above";
+       answer[12] = 3;
+       question[13] = "I am teasing you, but if you change my last letter, I could make you sore. What am I? \n\n1) banter/banted \n2) peek/peel \n3) rue/rub \n4) josh/jost \n5) mock/moce \n6) chaff/chafe";
+       answer[13] = 6;
+       question[14] = "You can score 1-3 points with me. Read backward you have an expression of contempt & a mammal from children's literature. \n\n1) chess \n2) test \n3) basketball \n4) ball \n5) checkers \n6) hoop";
+       answer[14] = 6;
+}
+
+class Rookie
+{
+      public:
+              Rookie ();
+              bool getStatus (int place) {return available [place-1];};
+              void setStatus (bool avail, int place) {available [place-1] = avail;};
+              string getQuestion (int place) {
+                  available [place-1]= false; 
+                  return question [place-1];
+              };
+              int getAnswer (int place) {return answer [place-1];};
+      private:
+              Items ritem;
+              bool available [3]; 
+              string question [3];
+              int answer [3];
+};
+
+Rookie :: Rookie () {
+       for (int p = 0; p < 3; p++)
+       {
+       available [p] = true;
+       }
+       question[0] = ritem.getQuestion (1);
+       answer[0] = ritem.getAnswer (1);
+       question [1]= ritem.getQuestion (2);
+       answer [1] = ritem.getAnswer (2);
+} 
+
+class Jack
+{
+      public:
+              Jack ();
+              bool getStatus (int place) {return available [place-1];};
+              void setStatus (bool avail, int place) {available [place-1] = avail;};
+              string getQuestion (int place) {
+                  available [place-1]= false; 
+                  return question [place-1];
+              };
+              int getAnswer (int place) {return answer [place-1];};
+      private:
+              Items jitem;
+              bool available [3]; 
+              string question [3];
+              int answer [3];
+};
+
+Jack :: Jack () {
+       for (int p = 0; p < 3; p++)
+       {
+       available [p] = true;
+       }
+       
+       question[2] = jitem.getQuestion (6);
+       answer[2] = jitem.getAnswer (6);
+} 
+
+class Queen
+{
+      public:
+              Queen ();
+              bool getStatus (int place) {return available [place-1];};
+              void setStatus (bool avail, int place) {available [place-1] = avail;};
+              string getQuestion (int place) {
+                  available [place-1]= false; 
+                  return question [place-1];
+              };
+              int getAnswer (int place) {return answer [place-1];};
+      private:
+              Items qitem;
+              bool available [3]; 
+              string question [3];
+              int answer [3];
+};
+
+Queen :: Queen () {
+       for (int p = 0; p < 3; p++)
+       {
+       available [p] = true;
+       }
+       
+       question[0] = qitem.getQuestion (7);
+       answer[0] = qitem.getAnswer (7);
+       question[1] = qitem.getQuestion (8);
+       answer[1] = qitem.getAnswer (8);
+       question[2] = qitem.getQuestion (9);
+       answer[2] = qitem.getAnswer (9);
+       
+} 
+
+class King
+{
+      public:
+              King ();
+              bool getStatus (int place) {return available [place-1];};
+              void setStatus (bool avail, int place) {available [place-1] = avail;};
+              string getQuestion (int place) {
+                  available [place-1]= false; 
+                  return question [place-1];
+              };
+              int getAnswer (int place) {return answer [place-1];};
+      private:
+              Items kitem;
+              bool available [3]; 
+              string question [3];
+              int answer [3];
+};
+
+King :: King () {
+       for (int p = 0; p < 3; p++)
+       {
+       available [p] = true;
+       }
+       
+       question[0] = kitem.getQuestion (10);
+       answer[0] = kitem.getAnswer (10);
+       
+} 
+
+class Ace
+{
+      public:
+              Ace ();
+              bool getStatus (int place) {return available [place-1];};
+              void setStatus (bool avail, int place) {available [place-1] = avail;};
+              string getQuestion (int place) {
+                  available [place-1]= false; 
+                  return question [place-1];
+              };
+              int getAnswer (int place) {return answer [place-1];};
+      private:
+              Items aitem;
+              bool available [3]; 
+              string question [3];
+              int answer [3];
+};
+
+Ace :: Ace () {
+       for (int p = 0; p < 3; p++)
+       {
+       available [p] = true;
+       }
+       question[0] = aitem.getQuestion (13);
+       answer[0] = aitem.getAnswer (13);
+       question[1] = aitem.getQuestion (14);
+       answer[1] = aitem.getAnswer (14);
+       question[2] = aitem.getQuestion (15);
+       answer[2] = aitem.getAnswer (15);
+} 
+
+void highScore (string username, int level)
+{
+     //freopen("high.txt", "r", stdin);
+     ifstream IN("high.txt"); 
+     string names [10];
+     int levels [10];
+     string in;
+     
+     for (int p = 0; p< 10; p++)
+     {
+         /*
+          IN >> names [p];
+          IN >> levels [p];
+           */
+           getline(IN, names[p]);
+           getline(IN, in);
+           stringstream str (in);
+           str >> levels [p];
+           
+           
+     }
+     for (int x = 0; x<10; x++)
+     {
+         if (levels[x] == level)
+         {
+                      
+              for (int n = 8; n >= x ; n--)
+              {
+                  names [n+1] = names [n];
+                  levels [n+1] = levels [n];
+              }
+              names [x] = username;
+              levels [x] = level;
+              break;  
+         }   
+     }    
+     system ("CLS");
+     cout << "High Scores! \n\n"; 
+     cout << "Level                                          Player's Name\n\n";
+     char chart [10][60]; //39-59
+     
+     for (int j= 0; j< 10; j++)
+     {
+        
+         if (levels [j] == 5)
+         {
+              cout << "Mission Completed                                    " << names [j] << endl;           
+         }
+         else if (levels [j] == 4)
+         {
+              cout << "Ace                                                  " << names [j] << endl;           
+         }     
+         else if (levels [j] == 3)
+         {
+              cout << "King                                                 " << names [j] << endl;           
+         }  
+         else if (levels [j] == 2)
+         {
+              cout << "Queen                                                " << names [j] << endl;           
+         }  
+         else if (levels [j] == 1)
+         {
+              cout << "Jack                                                 " << names [j] << endl;           
+         }  
+         else 
+         {
+              cout << "Rookie                                               " << names [j] << endl;           
+         }  
+         
+         
+             
+     }
+     cout << endl;
+     system ("pause");
+     ofstream OUT("high.txt"); 
+     for (int x = 0; x<10; x++)
+     {
+         OUT << names [x] << endl;
+         OUT << levels [x]<< endl;
+     }  
+    
+   
+}
+
+int main ()
+{
+    
+    Rookie r;
+    Jack j;
+    Queen q;
+    King k;
+    Ace a;
+    string input;
+    
+    int numinput, numinput2, promote = 600;
+    bool tracker = true;
+    cout << "Welcome to Puzzle Quest! \n\nThere are 5 levels: Rookie, Jack, Queen, King, and Ace. \n\nYour mission is to reach and to pass the Ace level. You begin as a rookie.\n\n";
+    cout << "Your points cumulate as you advance through the levels. You need the following number of points \nto advance to the next level: \n\nRookie - 100 points \nJack - 300 points \nQueen - 600 points \nKing - 1000 points\n\n";
+    cout << "Each room represents a new level. When you enter a new room, you will be presented with either a list of possible items for pick up or an immediate action.\n\n";
+    cout << "You will solve puzzles in each room to gain points. \n\n";
+    cout << "Please enter your name: ";
+    
+   
+    getline (cin, input);
+    Player user (input);
+    system ("CLS");
+    cout << "You will now advance to the Rookie room. \n\n";
+    system ("pause");
+    system ("CLS");
+    cout << "You have entered the Rookie room. \n\nThe room is dark and you have a candle, a wood stove and a gas lamp. \n\nYou only have one match, so what would you light first (enter the FIRST LETTER \nONLY of the item)? ";
+    cin >> input;
+    if (input == "m" || input == "M")
+    {
+        cout << "\nCongratulations! You have lit the room up! \n\n";
+        system ("pause");
+    }
+
+
+    else
+    {
+        cout << "\nYou already got your first question wrong! The answer is 'm' (which stands for \n'match'). Since you have failed to light the first room up, you have already \nfailed your mission. \n\nGAME OVER. \n\n";
+        system ("pause");
+        system ("CLS");
+        cout << "Just kidding. You're still in the game, but you've lost 50 points for getting \nsuch an easy question wrong.\n\nYou currently have -50 points.\n\n";
+        user.subtractPoints (50);
+        system ("pause");
+    }
+
+
+    system ("CLS");
+    cout << "The walls are stoned and the room is cold and dirty. The room is dark and it is lit by a tiny fireplace at the back of the room. \n\nYou walk towards the fireplace and you see 3 items: an old scroll of parchment \n(1), a tablet of stone (2), and a mystery bag (3). \n\n";
+    cout << "Choose an item to pick up (enter a number between 1 and 3): ";
+    for (int x = 0 ; x < 3 ; x++)
+    {
+        if (x != 0)
+        {
+            cout << "Choose another item to pick up (old scroll of parchment- 1, tablet of stone- 2, a mystery bag- 3): ";
+        }
+        cin >> numinput;
+        if (numinput < 1 || numinput > 3)
+        {
+            cout << "\nYou must enter a number between 1 and 3!\n\n";
+            system ("pause");
+            system ("CLS");
+            x--;
+        }
+        else
+        {
+            system ("CLS");
+            if (numinput == 1)
+            {
+                if (r.getStatus (1))
+                {
+                    cout << "This is what the scroll of parchment says: \n\nIf you solve this riddle, you will get 50 points. Here is the riddle: \n\n" << r.getQuestion (1) << "\n\nPlease enter a number between 1 and 6: ";
+                    cin >> numinput;
+                    cout << "\n";
+                    if (numinput == r.getAnswer (1))
+                    {
+                        user.addPoints (50);
+                        cout << "Correct! You currently have " << user.getPoints () << " points.\n\n";
+                    }
+                    else
+                    {
+                        cout << "Sorry, that's incorrect. The correct answer is 1) planet. \n\n";
+                    }
+                }
+                else
+                {
+                    cout << "You have already picked up that item!\n\n";
+                    x--;
+                }
+            }
+            else if (numinput == 2)
+            {
+                if (r.getStatus (2))
+                {
+                    cout << "This is what the tablet of stone says: \n\nIf you solve this riddle, you will get 50 points. Here is the riddle: \n\n" << r.getQuestion (2) << "\n\nPlease enter a number between 1 and 6: ";
+                    cin >> numinput;
+                    cout << "\n";
+                    if (numinput == r.getAnswer (2))
+                    {
+                        user.addPoints (50);
+                        cout << "Correct! You currently have " << user.getPoints () << " points.\n\n";
+
+                    }
+                    else
+                    {
+                        cout << "Sorry, that's incorrect. The correct answer is 4) Erato. \n\n";
+                    }
+
+                }
+                else
+                {
+                    cout << "You have already picked up that item!\n\n";
+                    x--;
+                }
+            }
+            else
+            {
+                if (r.getStatus (3))
+                {
+                    user.addPoints (20);
+                    cout << "You have just picked up 20 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+                    r.setStatus (false, 3);
+
+                }
+                else
+                {
+                    cout << "You have already picked up that item!\n\n";
+                    x--;
+                }
+            }
+            system ("pause");
+            if (x == 1 && tracker)
+            {
+                tracker = false;
+                system ("CLS");
+                cout << "The Queen of Hearts has just entered the room! \n\nShe gives you this ultimatum: If you get the following riddle right, you will gain 50 points. However, if you get the following riddle wrong, you will lose 50 \npoints!\n\nHere is the riddle: \n\n";
+                cout << "Which of the following word or name does not belong with the others? \nLook for the BEST answer. \n\n1) wyvern \n2) cockatrice \n3) komodo \n4) basilisk \n\nPlease enter a number between 1 and 4: ";
+                cin >> numinput;
+                cout << "\n";
+                if (numinput == 3)
+                {
+                    user.addPoints (50);
+                    cout << "Komodo is Correct! \n\nThe other creatures are mythological, or are named after a creature from \nmythology. \n\nYou currently have " << user.getPoints () << " points.\n\n";
+
+                }
+                else
+                {
+                    user.subtractPoints (50);
+                    cout << "Sorry, that's incorrect. Komodo is the correct answer; the other creatures are \nmythological, or are named after a creature from mythology.\n\nYou currently have " << user.getPoints () << " points.\n\n";
+                }
+                system ("pause");
+            }
+
+            if (user.getPoints () >= 100)
+            {
+                system ("CLS");
+                cout << "Congratulations! You are promoted to the next level: Jack.\n\n";
+                user.addLevel ();
+                system ("pause");
+                system ("CLS");
+                break;
+
+            }
+
+            system ("CLS");
+        }
+    }
+
+
+    if (user.getPoints () < 100)
+    {
+        cout << "GAME OVER! You don't have enough points to advance to the next level.\n\n";
+        system ("pause");
+        highScore (user.getName (), user.getLevel());
+        return (0);
+    }
+
+
+    tracker = true;
+    cout << "You will now advance to the Jack room. \n\n";
+    system ("pause");
+    system ("CLS");
+    cout << "Oh no! There's a lock on the door! There are 6 buttons on the lock, each button with a number between 0 and 5. You notice that there is a small piece of paper \nstuck to the back of the lock. It reads: \n\n";
+    cout << "The password has 3 digits and none of the digits are the same. The password \nalso represents the number of possibilities based on the criteria just listed. \nEnter the password now (You only have one shot): ";
+    cin >> numinput;
+    if (numinput == 120)
+    {
+        cout << "\nCongratulations! You have entered the Jack Room! \n\n";
+        system ("pause");
+    }
+
+
+    else
+    {
+        user.subtractPoints (50);
+        cout << "\nIncorrect! You decide to yank the lock open, and by doing so, you have just \nlost 50 points. \n\nYou currently have " << user.getPoints () << " points.\n\n ";
+        system ("pause");
+        tracker = false;
+
+
+    }
+
+
+    system ("CLS");
+    cout << "The room is spacious and round. The wallpaper is striped black and white with orange polka dots. You see a table in front of the largest polka dot. You walk \ntowards the table and you see a note. It reads: \n\n";
+    cout << "There are 3 items on this table: A hint that will be automatically given to \nyou at the next riddle you encounter (1), a large cookie that will \nautomatically give you 50 points (2), and a riddle that will give you 100 \npoints if you can solve it correctly (3).\n\n";
+    cout << "You may only choose ONE item.\n\n";
+    cout << "Please choose and item (enter a number between 1 and 3): ";
+    cin >> numinput;
+    system ("CLS");
+    if (numinput == 1)
+    {
+        cout << "Thank you for choosing the hint. The hint will be automatically given to you at the next riddle you encounter.\n\n";
+
+    }
+
+
+    else if (numinput == 2)
+    {
+        user.addPoints (50);
+        cout << "You have just gained 50 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+        j.setStatus (false, 1);
+    }
+
+
+    else
+    {
+
+        j.setStatus (false, 1);
+        cout << "Here is the riddle: \n\n" << j.getQuestion (3) << "\n\nPlease enter a number between 1 and 6: ";
+        cin >> numinput;
+        if (numinput == j.getAnswer (3))
+        {
+            user.addPoints (100);
+            cout << "\n4) pinscher is correct! Remove the 's' and you have PINCHER. You have just gained 100 points!\n\n You currently have " << user.getPoints () << " points.\n\n";
+        }
+        else
+        {
+            cout << "\nSorry, the correct answer is 4) pinscher. Remove the 's' and you have PINCHER.\n\n";
+        }
+    }
+
+
+    system ("pause");
+    system ("CLS");
+
+    if (tracker)
+    {
+        cout << "Oh no! You just realized that you forgot to lock the door behind you when you \ncame in! \n\n";
+        cout << "Too late! Lady Tremaine just came in through the door!\n\n";
+    }
+
+
+    else
+    {
+
+        cout << "Oh no! Since you yanked the lock open, Lady Tremaine has just came in through the door! \n\n";
+
+    }
+
+
+    cout << "This is what she says: \n\n";
+    cout << "If you solve the following riddle, your points will triple. However, if you \ndon't, your points will be reduced by 25%. \n\nHere is the riddle: ";
+    cout << "Add a letter to the beginning of me, and then read me \nbackwards, and you have a word that means 'to run away secretly with the \nintention of getting married.' Someone resides at one of me - add a letter to the end of his last name, and you have a provision in a document. What am I?\n\n1) Escape \n2) House \n3) Pole \n4) Kidnap \n5) Continent\n6) Ocean\n\n";
+    if (r.getStatus (1))
+    {
+        cout << "Hint: It is not 1) Escape, 2) House, or 6) Ocean. \n\n";
+
+    }
+
+
+    cout << "Please enter a number between 1 and 6: ";
+    cin >> numinput;
+    if (numinput == 3)
+    {
+        user.addPoints (2 * user.getPoints ());
+        cout << "\n3) Pole is correct! The other word referred to was elope. You currently have " << user.getPoints () << " points.\n\n";
+    }
+
+
+    else
+    {
+        user.subtractPoints ((user.getPoints () / 4));
+        cout << "Sorry, the correct answer was 3)Pole. The other word referred to was elope. \n\nYou currently have " << user.getPoints () << " points.\n\n";
+    }
+
+
+    system ("pause");
+    system ("CLS");
+    if (user.getPoints () >= 300)
+    {
+
+        cout << "Congratulations! You are promoted to the next level: Queen.\n\n";
+        user.addLevel ();
+        system ("pause");
+    }
+
+
+    else
+    {
+        cout << "GAME OVER! You don't have enough points to advance to the next level.\n\n";
+        system ("pause");
+        highScore (user.getName (), user.getLevel());
+        return (0);
+    }
+
+
+    system ("CLS");
+
+    cout << "You have entered the Queen Room! \n\n";
+    system ("pause");
+    system ("CLS");
+
+    cout << "The room is royal and serene. A large bed sits as the centrepiece of the room. \n\nA fairy appears out of nowhere. She seems nice, though you really shouldn't rely on first impressions. \n\n";
+
+    cout << "She says you that she could help you. First of all, she tells you that the Queen and King levels are different: Instead of promoting to the next level once you attain enough points, you finish the rest of the level to gain as many points as you can. She gives you two choices: \n\n1) Lower the number of points you need to advance to King level from 600 to 500 (but you still need 1000 points to advance to Ace level from King) OR \n\n2) Simply give you 50 points ";
+    cout << "\n\nPlease enter your choice (enter either 1 or 2): ";
+    cin >> numinput;
+    cout << "\n";
+    if (numinput == 1)
+    {
+        promote = 500;
+        cout << "Now you only need 500 points to promote to King level!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+    }
+
+
+    else
+    {
+        user.addPoints (50);
+        cout << "You have just gained 50 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+    }
+
+
+    system ("pause");
+    system ("CLS");
+    cout << "The fairy gives you further instructions: \n\n";
+    cout << "There are 3 pillows on the bed. The pillows are purple, red, and orange respectively, from left to right. Underneath each pillow is a riddle. Each riddle is worth 100 points. Here's the catch: You may only solve move on to the next pillow if you have solved the previous puzzle correctly. You will start with the riddle under the purple pillow first.\n\n";
+    cout << "Here is the riddle under the purple pillow: \n\n" << q.getQuestion (1) << "\n\nPlease enter a number between 1 and 6: ";
+    cin >> numinput;
+    if (numinput == q.getAnswer (1))
+    {
+        user.addPoints (100);
+        cout << "\n4) injury is correct! You have just gained 100 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+        system ("pause");
+        system ("CLS");
+        cout << "Here is the riddle under the red pillow: \n\n" << q.getQuestion (2) << "\n\nPlease enter a number between 1 and 6: ";
+        cin >> numinput;
+        if (numinput == q.getAnswer (2))
+        {
+            user.addPoints (100);
+            cout << "\n3) gratis is correct! You have just gained 100 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+
+            system ("pause");
+            system ("CLS");
+            cout << "Here is the riddle under the orange pillow: \n\n" << q.getQuestion (3) << "\n\nPlease enter a number between 1 and 6: ";
+            cin >> numinput;
+            if (numinput == q.getAnswer (3))
+            {
+                user.addPoints (100);
+                cout << "\n1) R is correct! Each letter given is the last letter in each month of the year, beginning with January (Y), and ending with December (R). You have just gained 100 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+
+            }
+            else
+            {
+                cout << "\nSorry, the correct answer is 1) R. Each letter given is the last letter in each month of the year, beginning with January (Y), and ending with December (R).\n\n";
+            }
+        }
+        else
+        {
+            cout << "\nSorry, the correct answer is 3) gratis. \n\n";
+        }
+    }
+
+
+    else
+    {
+        cout << "\nSorry, the correct answer is 4) injury. \n\n";
+    }
+
+
+    if (user.getPoints () >= promote)
+    {
+
+        cout << "Congratulations! You are promoted to the next level: King.\n\n";
+        user.addLevel ();
+        system ("pause");
+    }
+
+
+    else
+    {
+        cout << "GAME OVER! You don't have enough points to advance to the next level.\n\n";
+        system ("pause");
+        highScore (user.getName (), user.getLevel());
+        return (0);
+    }
+
+
+    system ("CLS");
+    cout << "You have entered the King Room! \n\n";
+    system ("pause");
+    tracker = false;
+    do
+    {
+        system ("CLS");
+
+        cout << "The room is grand and luxurious. There are many tables and chairs. Right away, you see an open scroll on one of the tables. You pick it up and read it: \n\n";
+        cout << "Solve this riddle and you will gain points...\n\n";
+        cout << "Suddenly, as you're reading it, the king appears. This is what he says: \n\n";
+        cout << "I will make this a true daily double. You currently have " << user.getPoints () << " points. You may bet up to " << user.getPoints () << " points. \n\nPlease place your bet now: ";
+        cin >> numinput2;
+        if (numinput2 > user.getPoints ())
+        {
+            tracker = true;
+            cout << "\nYou can't bet that many points!\n\n";
+            system ("pause");
+        }
+    }
+
+
+    while (tracker == true);
+    system ("CLS");
+    cout << "\nYou continue to read the scroll. Here is the riddle: \n\n" << k.getQuestion (1) << "\n\nPlease enter a number between 1 and 6: ";
+    cin >> numinput;
+    if (numinput == k.getAnswer (1))
+    {
+        user.addPoints (numinput2);
+        cout << "\n1) oompah and oomph is correct! You have just gained " << numinput2 << " points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+
+    }
+
+
+    else
+    {
+        user.subtractPoints (numinput2);
+        cout << "\nSorry, the correct answer is 1) oompah and oomph. You have just lost " << numinput2 << " points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+    }
+
+
+    system ("pause");
+    system ("CLS");
+
+    cout << "As the king leaves, a princess enters. She says: \n\n";
+    cout << "I too have another riddle for you. If you solve it, you can choose to obtain one of two items: \n\n1) 150 points OR \n\n2)a major hint that will help you in the next level.\n\n";
+    cout << "Here is the riddle: \n\n";
+    cout << "I indicate that something is extremely cold (brrr!). My first 3 letters are something you might place in your hair, and if you remove them, my remaining letters were discussed by Freud. What am I? \n\n1) pined \n2) pinion \n3) pinego \n4) gelego \n5) gelid \n6) none of the above\n\nPlease choose a number between 1 and 6: ";
+    cin >> numinput;
+    if (numinput == 5)
+    {
+        cout << "Congratulations! \n\nExplanation: Something gelid is extremely cold, gel can be placed in the hair, and the id was discussed by Freud. \n\nYou may choose the reward: \n\n1) 150 points OR \n\n2)a major hint that will help you in the next level.\n\n";
+        cin >> numinput2;
+        if (numinput2 == 1)
+        {
+            user.addPoints (150);
+            cout << "You have just gained 150 points!\n\nYou currently have " << user.getPoints () << " points.\n\n";
+        }
+        else
+        {
+            cout << "In the next room, you will see 3 jars. You must pick the correct jar in order to win. Hint: It is not the third jar. \n\n";
+        }
+    }
+
+
+    else
+    {
+        cout << "\nSorry, the correct answer is 5) gelid. \n\nExplanation: Something gelid is extremely cold, gel can be placed in the hair, and the id was discussed by Freud. \n\n";
+
+    }
+
+
+    system ("pause");
+    system ("CLS");
+    if (user.getPoints () >= 1000)
+    {
+
+        cout << "Congratulations! You are promoted to the next level: Ace.\n\n";
+        user.addLevel ();
+    }
+
+
+    else
+    {
+        cout << "GAME OVER! You don't have enough points to advance to the next level.\n\n";
+        system ("pause");
+        highScore (user.getName (), user.getLevel());
+        return (0);
+    }
+
+
+    system ("pause");
+    system ("CLS");
+
+    cout << "You have entered the Ace Room! \n\n";
+    system ("pause");
+    system ("CLS");
+    tracker = true;
+    cout << "You see 3 large dark jars in the centre of the room and a large sign at the right of the jars. As you walk toward them, you begin to read the sign: \n\n'There is a riddle in front of the 3 boxes. You must solve the riddle before you can open the jar.  One of the 3 boxes contains the key to complete your mission. You will automatically win when you get the key.'\n\n";
+    for (int x = 0 ; x < 3 ; x++)
+    {
+        cout << "Please choose a jar (enter a number between 1 and 3): ";
+        cin >> numinput;
+
+        if (numinput < 1 || numinput > 3)
+        {
+            cout << "\nYou must enter a number between 1 and 3!\n\n";
+            system ("pause");
+            system ("CLS");
+            x--;
+        }
+        else
+        {
+            system ("CLS");
+
+            if (a.getStatus (numinput))
+            {
+                cout << "Here is the riddle: \n\n" << a.getQuestion (numinput) << "\n\nPlease enter a number between 1 and 6: ";
+                cin >> numinput2;
+                cout << "\n";
+                if (numinput2 == a.getAnswer (numinput))
+                {
+                    user.addPoints (50);
+                    cout << "Correct! You have just gained 50 points! You currently have " << user.getPoints () << " points.\n\n";
+                    cout << "You open the jar... \n\n";
+                    system ("pause");
+                    if (numinput == 1)
+                    {
+                        tracker = false;
+                        break;
+
+                    }
+                    else
+                    {
+                        system ("CLS");
+                        cout << "Unfortunately, the jar is empty! \n\n";
+                        system ("pause");
+                    }
+                }
+                else
+                {
+                    cout << "Sorry, that's incorrect. The correct answer is " << a.getAnswer (numinput) << "). \n\n";
+                    system ("pause");
+                }
+            }
+            else
+            {
+                cout << "You have already picked up that item!\n\n";
+                x--;
+                system ("pause");
+            }
+
+            system ("CLS");
+        }
+    }
+
+
+    if (tracker)
+    {
+        cout << "Unfortunately, you haven't found the key. You failed your mission. GAME OVER. \n\n";
+        system ("pause");
+        highScore (user.getName (), user.getLevel());
+        return (0);
+    }
+
+
+    system ("CLS");
+    cout << "You see the key at the bottom of the jar, but a wizard is coming out of the jar! This is what he says: \n\n";
+    cout << "You must get the following question right before I will let you get the key. If you don't get this right, you lose. Here is your last question: \n\n";
+    cout << "What is your name? (Hint: This isn't a trick question! The answer is the name you entered when you first started the game) \n\n";
+    
+    getline (cin, input);
+    system ("CLS");
+    if (input == user.getName ())
+    {
+        cout << "Congratulations!! You have succeeded in your mission! YOU WIN!!!";
+        user.addLevel();
+    }
+
+
+    else
+    {
+        cout << "You lose!! How could you not know your own name??!!\n\n";
+    }
+
+    cout << "level: " << user.getLevel();
+    system ("pause");
+    highScore (user.getName (), user.getLevel());
+    return (0);
+}
+
+
+
+// http://www.puzz.com/iqtesters.html
+/*
+List of items:
+
+     Rookie:
+     1. Riddle
+     2. Riddle
+     3. Points
+
+     Jack
+     4. Hint
+     5. Points
+     6. Riddle
+
+     Queen:
+     7. Riddle
+     8. Riddle
+     9. Riddle
+     
+     King (2 actions):
+     10. Riddle (on the scroll) 
+     11. Points
+     12. Hint    
+     
+     Ace:
+     13. Riddle
+     14. Riddle
+     15. Riddle    
+
+TseLingame2real - real copy
+*/

@@ -1,0 +1,2787 @@
+/*
+A- fixed high score, debugged the 'F' or 'E' thing in test, fixed memory problem, fixed add term + review for more efficiency
+-added repeat card now
+
+Name: Ling-Sang Tse
+Title of Program: Flash Cards
+Date: April 23, 2010
+Teacher: Mr. Sze
+Class: ISC4U1 - 01
+Description:
+This is a flash card machine. It is geared towards middle school students between grades
+6 and 8.
+
+This program helps students study for their French tests. Students create their own vocabulary
+sets to review in a flash card manner.
+
+Students can do the following with the vocabulary sets:
+         -Add vocabulary sets
+         -Edit the vocabulary sets (More details on this later)
+         -Remove the vocabulary sets
+         -Review the vocabulary sets using flash cards
+         -Learn the vocabulary sets (which lists the terms and its corresponding meaning)
+         -Test themselves on the vocabulary sets
+         -Save the vocabulary sets
+         -Upload the vocabulary sets
+
+Students can edit the vocabulary sets in the following ways:
+         -Add new terms
+         -Edit terms
+         -Remove terms
+         -Rename the vocabulary category
+
+Students may also view the high scores for each vocabulary set.
+
+There is an introcution, a goodbye, and various menus in this program.
+
+It has several built-in sets already to help the user understand how to use this
+program and to let the user explore the different functions of the program.
+
+*/
+
+//Importing library
+#import <sstream>
+#import <cmath>
+#include <cstdlib>
+#import <iostream>
+#import <fstream>	/* For File I/O */
+#import <string>
+#import <time.h>
+#include <stdio.h>
+#include <ctime>
+
+
+//Definitions
+#define For(a, b, c)	for(int a = b; a < c; a++)
+
+using namespace std;
+
+/*
+ =======================================================================================================================
+    Vocab class
+    Each term is a Vocab object.
+
+    Variable Declaration:
+             french (string) : french term
+             english (string) : english term
+
+ =======================================================================================================================
+ */
+class				Vocab
+{
+    /*
+     -----------------------------------------------------------------------------------------------------------------------
+     -----------------------------------------------------------------------------------------------------------------------
+     */
+
+//public functions
+public:
+
+    //declaration of the functions
+
+    //Constructors
+    Vocab();
+    Vocab(string frin, string enin);
+
+    //Accessor methods
+    string	getFrench();
+    string	getEnglish();
+
+    // Mutator methods
+    void	setFrench(string frin);
+    void	setEnglish(string enin);
+
+    /*
+     -----------------------------------------------------------------------------------------------------------------------
+     -----------------------------------------------------------------------------------------------------------------------
+     */
+
+//private variables
+private:
+    string	french;
+    string	english;
+
+};
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+
+//Vocab constructor- creates a blank Vocab
+Vocab::Vocab()
+{
+    french = "";
+    english = "";
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+
+//Vocab constructor- creates a blank Vocab
+Vocab::Vocab(string frin, string enin)
+{
+    french = frin;
+    english = enin;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+string Vocab::getFrench()
+{
+    return french;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+string Vocab::getEnglish()
+{
+    return english;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocab::setFrench(string frin)
+{
+    french = frin;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocab::setEnglish(string enin)
+{
+    english = enin;
+}
+
+/*
+ =======================================================================================================================
+    Has to come after Vocab
+ =======================================================================================================================
+ */
+class	VocabCat
+{
+    /*
+     -----------------------------------------------------------------------------------------------------------------------
+     -----------------------------------------------------------------------------------------------------------------------
+     */
+public:
+    VocabCat();
+    VocabCat(string catin); /* For built-in stuff */
+    int		getNumTerms();
+    Vocab	getVocab(int index);
+    string	getCat();		/* Gets the name of the category */
+    void	setCat(string catin);
+
+    void	setVocabEng2(int vocabex, string enin); /* vocab + index = "vocabex" */
+    void	setVocabFr2(int vocabex, string frin);
+
+    void	addVocab2(string frin, string enin);	/* If the cat is needed, add that too */
+    void	removeVocab(int index);
+
+
+    /*
+     -----------------------------------------------------------------------------------------------------------------------
+     -----------------------------------------------------------------------------------------------------------------------
+     */
+private:
+    string	cat;
+    int		numTerms;
+    Vocab	vocabSet[100];
+
+};
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+
+VocabCat::VocabCat()
+{
+    cat = "";
+    numTerms = 0;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void VocabCat::setVocabEng2(int vocabex, string enin)
+{
+    vocabSet[vocabex].setEnglish(enin);
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void VocabCat::setVocabFr2(int vocabex, string frin)
+{
+    vocabSet[vocabex].setFrench(frin);
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+VocabCat::VocabCat(string catin)
+{
+    cat = catin;
+    numTerms = 0;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+int VocabCat::getNumTerms()
+{
+    return numTerms;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+Vocab VocabCat::getVocab(int index)
+{
+    return vocabSet[index];
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+string VocabCat::getCat()
+{
+    return cat;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void VocabCat::setCat(string catin)
+{
+    cat = catin;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void VocabCat::addVocab2(string frin, string enin)
+{
+    if (numTerms < 100)
+    {
+        vocabSet[numTerms].setFrench(frin);
+        vocabSet[numTerms].setEnglish(enin);
+        numTerms++;
+    }
+}
+
+
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void VocabCat::removeVocab(int index)	/* index of the vocab term you want to remove */
+{
+    For(y, index, numTerms - 1)
+    {
+        vocabSet[y] = vocabSet[y + 1];
+    }
+
+    numTerms--;
+}
+
+class	Vocabulary
+{
+    /*
+     -----------------------------------------------------------------------------------------------------------------------
+     -----------------------------------------------------------------------------------------------------------------------
+     */
+public:
+    Vocabulary();
+
+    int			getNumCats();
+    VocabCat	getVocabCat(int index);
+
+    void		setVocabEng(int vocabcatex, int vocabex, string enin);
+    void		setVocabFr(int vocabcatex, int vocabex, string frin);
+    void setVocabCat (int vocabex, string strin);
+
+    void removeTerm (int vocabcatex, int vocabex);
+    void		addVocab(int vocabcatex, string frin, string enin);
+    void		addVocabCat(string namein);
+    void		removeVocabCat(int index);
+
+    /*
+     -----------------------------------------------------------------------------------------------------------------------
+     -----------------------------------------------------------------------------------------------------------------------
+     */
+private:
+    int			numCats;
+    VocabCat	vocabCats[100];
+};
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+
+Vocabulary::Vocabulary()
+{
+    numCats = 0;
+}
+
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocabulary::addVocab(int vocabcatex, string frin, string enin)
+{
+    vocabCats[vocabcatex].addVocab2(frin, enin);
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocabulary::setVocabEng(int vocabcatex, int vocabex, string enin)
+{
+    vocabCats[vocabcatex].setVocabEng2(vocabex, enin);
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocabulary::setVocabFr(int vocabcatex, int vocabex, string frin)
+{
+    vocabCats[vocabcatex].setVocabFr2(vocabex, frin);
+}
+
+//Vocabex represents the vocabulary category's index
+void Vocabulary::setVocabCat(int vocabex, string strin)
+{
+    vocabCats[vocabex].setCat(strin);
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+
+void Vocabulary::removeTerm (int vocabcatex, int vocabex)
+{
+    vocabCats[vocabcatex].removeVocab(vocabex);
+
+}
+
+
+int Vocabulary::getNumCats()
+{
+    return numCats;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+VocabCat Vocabulary::getVocabCat(int index)
+{
+    return vocabCats[index];
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocabulary::addVocabCat(string namein)
+{
+    if (numCats < 100)
+    {
+        vocabCats[numCats].setCat(namein);
+        numCats++;
+    }
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+void Vocabulary::removeVocabCat(int index)	/* CAPPED from VocabCat */
+{
+    For(y, index, numCats - 1)
+    {
+        vocabCats[y] = vocabCats[y + 1];
+    }
+
+    numCats--;
+}
+
+/*
+ =======================================================================================================================
+ =======================================================================================================================
+ */
+
+//Declaring the main menu functions
+void instructionsMain (Vocabulary voc);
+Vocabulary mainMenu (Vocabulary voc);
+void introduction (Vocabulary voc);
+void instructions2 (Vocabulary voc);
+string toUpper (string strin);
+string tab (string word, int num);
+string removeSpace (string strin);
+
+
+//overloading - for second time
+int gorder (int order [], int index, int lorder) // gorder = generate order
+{
+    order [index] = rand() % lorder;
+    for (int j = 0; j < index; j++)
+    {
+        if (order [index] ==order [j])
+        {
+
+            //order [index] = rand() % lorder;
+            gorder (order, index, lorder);
+        }
+    }
+    return order [index];
+}
+
+void title(string title)
+{
+    system("CLS");
+    cout << title << endl;
+    cout << endl;
+}
+
+Vocabulary addCat (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+    if (voc.getNumCats() < 100)
+    {
+        title("New Vocabulary Category");
+        cout << "Please enter the name of the new vocabulary category (Or enter 'c' to cancel): ";
+        getline(cin, strin);
+        if (strin == "c" || strin == "C")
+        {
+            return voc;
+        }
+
+        voc.addVocabCat(strin);
+        cout << endl;
+
+
+        string cat = strin + ".hvoc";
+
+        char	*temp_line = new char[cat.size() + 1];	/* +1 char for '\0' terminator */
+
+
+        strcpy(temp_line, cat.c_str());
+        ofstream OUT(temp_line);
+        OUT << "0";
+        OUT << endl;
+
+
+        cout << "If you would like to add terms, please go to 'Edit a Vocabulary Cateogory' from the Flash Cards menu.";
+        cout << endl << endl;
+        cout << "Press any key to return to the Flash Cards menu...";
+        system ("pause>nul");
+    }
+    return voc;
+}
+
+//Switching vocabulary sets to edit from the Edit Menu
+int changeSet (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+    if (voc.getNumCats () > 1)
+    {
+        while (true)
+        {
+            while (true)
+            {
+                title("Edit Vocabulary");
+                For(w, 0, voc.getNumCats())
+                {
+                    cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+                }
+
+                cout << endl;
+                cout <<
+                     "Please choose a vocabulary set to edit by entering a number: ";
+
+                getline(cin, str);
+
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                /* This code converts from string to number safely. */
+                stringstream	myStream(str);
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                if (myStream >> intin) break;
+                cout << endl;
+                cout << "Invalid number - please try again." << endl;
+                cout << endl;
+                system ("pause");
+            }
+            if (intin > 0 && intin <= voc.getNumCats()) break;
+            cout << endl;
+            cout << "You must enter the number of a vocabulary set!\n";
+            cout << endl;
+            system ("pause");
+
+        }
+
+    }
+
+    return intin;
+}
+
+Vocabulary editTerms (Vocabulary voc, int intin)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int intin2 = 0, tracker = 0;
+    while (true)
+    {
+        while (true)
+        {
+            title ("Edit Terms - " + voc.getVocabCat (intin-1).getCat ());
+            cout << tab ("French", 40) << "English Term \n" ;
+            cout << endl;
+            For (w, 0, voc.getVocabCat (intin-1).getNumTerms())
+            {
+                if (w < 9)
+                {
+                    strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+                    cout << w+1 << ". " << tab (strin, 37);
+                }
+                else if (w >= 9 && w < 99)
+                {
+                    strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+                    cout << w+1 << ". " << tab (strin, 36);
+                }
+                else
+                {
+                    strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+                    cout << w+1 << ". " << tab (strin, 35);
+                }
+
+                cout << voc.getVocabCat(intin-1).getVocab(w).getEnglish() << "\n";
+
+            }
+            cout << endl;
+            cout << "Please choose a term to edit by entering a number (Or enter 'c' to cancel): ";
+            getline(cin, str);
+
+            if (str == "c" || str == "C")
+            {
+                return voc;
+            }
+
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /* This code converts from string to number safely. */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+            if (myStream >> intin2) break;
+            cout << endl;
+            cout << "Invalid number - please try again." << endl;
+            cout << endl;
+            system ("pause");
+        }
+        if (intin2 > 0 && intin2 <= voc.getVocabCat (intin-1).getNumTerms()) break;
+        cout << endl;
+        cout << "You must enter the number of a term!\n";
+        cout << endl;
+        system ("pause");
+
+    }
+
+    title ("Edit Term - " + voc.getVocabCat(intin-1).getVocab(intin2-1).getFrench() + "/" + voc.getVocabCat(intin-1).getVocab(intin2-1).getEnglish());
+    cout << "Please enter the new French term: ";
+    getline(cin, strin);
+    strin = removeSpace (strin);
+    voc.setVocabFr(intin-1, intin2-1, strin);
+    cout << endl;
+    cout << "Please enter the new English term: ";
+    getline(cin, strin);
+    strin = removeSpace (strin);
+    voc.setVocabEng(intin-1, intin2-1, strin);
+
+    return voc;
+
+}
+
+Vocabulary addTerm (Vocabulary voc, int intin)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			 intin2 = 0, tracker = 0;
+
+
+    if (voc.getVocabCat(intin - 1).getNumTerms() < 100)
+    {
+        do
+        {
+
+            /*
+             * strin = French term ;
+             * strin2 = English term
+             */
+            title("New Term - " +  voc.getVocabCat(intin-1).getCat());
+            cout << "Please enter the French term (Or enter 'e' to exit to the vocabulary menu): ";
+            getline(cin, strin);
+
+            if (strin == "e" || strin == "E")
+            {
+                return voc;
+            }
+            strin = removeSpace (strin);
+
+            cout << endl;
+            cout << "Please enter the English term: "; 
+            getline(cin, strin2);
+            strin2 = removeSpace (strin2);
+            voc.addVocab(intin - 1, strin, strin2);
+
+        } while (strin != "e" && strin != "E");
+    }
+    return voc;
+}
+
+Vocabulary removeVocabulary (Vocabulary voc, int intin)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			 intin2 = 0, tracker = 0;
+    if (voc.getNumCats () >= 1)
+    {
+        while (true)
+        {
+            while (true)
+            {
+                title ("Remove a Term - " + voc.getVocabCat (intin-1).getCat ());
+                cout << "French Term \tEnglish Term \n" ;
+                cout << endl;
+                For (w, 0, voc.getVocabCat (intin-1).getNumTerms())
+                {
+                    if (w < 9)
+                    {
+                        strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+                        cout << w+1 << ". " << tab (strin, 37);
+                    }
+                    else if (w >= 9 && w < 99)
+                    {
+                        strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+                        cout << w+1 << ". " << tab (strin, 36);
+                    }
+                    else
+                    {
+                        strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+                        cout << w+1 << ". " << tab (strin, 35);
+                    }
+                    cout << voc.getVocabCat(intin-1).getVocab(w).getEnglish() << "\n";
+
+                }
+                cout << endl;
+                cout << "Please choose a term to remove by entering a number (Or enter 'c' to cancel): ";
+
+                getline(cin, str);
+                if (str == "c" || str == "C")
+                {
+                    return voc;
+                }
+
+
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                /* This code converts from string to number safely. */
+                stringstream	myStream(str);
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                if (myStream >> intin2) break;
+                cout << "Invalid number - please try again." << endl;
+                cout << endl;
+                system ("pause");
+            }
+            if (intin2 > 0 && intin2 <= voc.getVocabCat(intin-1).getNumTerms ()) break;
+            cout << endl;
+            cout << "You must enter the number of a term!\n";
+            cout << endl;
+            system ("pause");
+
+        }
+
+        voc.removeTerm (intin-1, intin2-1);
+
+        cout << endl;
+        cout << "The term has been succesfully removed!" << endl;
+        cout << endl;
+        system ("pause");
+    }
+    return voc;
+}
+
+Vocabulary renameCat(Vocabulary voc, int intin)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int		intin2 = 0, tracker = 0;
+    if (voc.getNumCats() < 100)
+    {
+        title("Rename a Category - " + voc.getVocabCat (intin-1).getCat());
+        cout << "Please enter the new name of the new vocabulary category (Or enter 'c' to\n";
+        cout << "cancel): ";
+        getline(cin, strin);
+        if (strin == "c" || strin == "C")
+        {
+            return voc;
+        }
+
+        voc.setVocabCat(intin-1, strin);
+        cout << endl;
+
+
+        string cat = strin + ".hvoc";
+
+        char	*temp_line = new char[cat.size() + 1];	/* +1 char for '\0' terminator */
+
+
+        strcpy(temp_line, cat.c_str());
+        ofstream OUT(temp_line);
+        OUT << "0";
+        OUT << endl;
+
+
+        cout << "Press any key to return to the Flash Cards menu...";
+        system ("pause>nul");
+    }
+    return voc;
+}
+
+//From main menu
+Vocabulary editCat (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+    while (true)
+    {
+        while (true)
+        {
+            title("Edit Vocabulary");
+
+            For(w, 0, voc.getNumCats())
+            {
+                cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+            }
+
+            cout << endl;
+            cout <<
+                 "Please choose a vocabulary set to edit by entering a number (Or enter 'c' to cancel): ";
+            getline(cin, str);
+
+            if (str == "c" || str == "C")
+            {
+                return voc;
+            }
+
+
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /* This code converts from string to number safely. */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+            if (myStream >> intin) break;
+            cout << "Invalid number - please try again." << endl;
+            cout << endl;
+            system ("pause");
+        }
+        if (intin > 0 && intin <= voc.getNumCats()) break;
+        cout << endl;
+        cout << "You must enter the number of a vocabulary set!\n";
+        cout << endl;
+        system ("pause");
+
+    }
+
+
+
+
+    for (;;)
+    {
+        while (true)
+        {
+            while (true)
+            {
+                title("Edit flash cards menu - " + voc.getVocabCat(intin - 1).getCat());
+
+                cout << "1. Add new term(s)" << endl;
+                cout << "2. Edit a term" << endl;
+                cout << "3. Remove a term" << endl;
+                cout << "4. Rename the vocabulary category" << endl;
+                cout << "5. Edit another vocabulary set" << endl;
+                cout << "6. Back to flash cards menu" << endl;
+
+                cout << endl;
+                cout << "Please choose a number between 1 and 6: ";
+
+                getline(cin, str);
+
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                /* This code converts from string to number safely. */
+                stringstream	myStream(str);
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                cout << endl;
+                if (myStream >> intin2) break;
+                cout << "Invalid number - please try again. " << endl;
+                cout << endl;
+                cout << "Please choose a number between 1 and 6: ";
+                cout << endl;
+                cout << endl;
+                system ("pause");
+            }
+            if (intin2 > 0 && intin2 <= 6) break;
+            cout << endl;
+            cout << "You must enter a number between 1 and 6!\n";
+            cout << endl;
+            system ("pause");
+
+        }
+
+        /* Adding vocab */
+        if (intin2 == 1)
+        {
+            if (voc.getVocabCat(intin - 1).getNumTerms() < 100)
+            {
+                voc = addTerm (voc, intin);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "You already have 100 vocabulary terms in " << voc.getVocabCat(intin - 1).getCat () << "running! You may not\n";
+                cout << "have more than 100 vocabulary terms running in any single vocabulary set.\n";
+                cout << "If you wish to add a new category, you must remove a vocabulary set\n";
+                cout << "or re-run the program.\n";
+                cout << endl;
+
+                cout << "Please read the 'Instructions and Tips' section for more details on other limits of the program.";
+                cout << endl;
+                system ("pause");
+            }
+        }
+
+        /* Editing vocab */
+        else if (intin2 == 2)
+        {
+            if (voc.getVocabCat(intin - 1).getNumTerms() >= 1)
+            {
+                voc = editTerms (voc, intin);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary term to edit!\n";
+                cout << endl;
+                cout << "Please add a term by going to the 'Add new term(s)' section.\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+        }
+
+        /* Removing vocab */
+        else if (intin2 == 3)
+        {
+            if (voc.getVocabCat(intin - 1).getNumTerms() >= 1)
+            {
+                voc = removeVocabulary (voc, intin);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to remove!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+
+        }
+
+        else if (intin2 == 4)
+        {
+
+            voc = renameCat (voc, intin);
+
+        }
+
+        /* Edit another set */
+        else if (intin2 == 5)
+        {
+            if (voc.getVocabCat(intin - 1).getNumTerms() > 1)
+            {
+                intin = changeSet (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is not another vocabulary category to edit!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+
+        /* Back to Vocab Menu */
+        else if (intin2 = 6)
+        {
+            break;
+        }
+        else
+        {
+
+            cout << endl;
+            cout << "You must enter a number between 1 and 6!\n";
+            cout << endl;
+            system ("pause");
+        }
+    }
+    return voc;
+}
+
+//tracker2 - keeps track whether this is called from the upload cats option by the user or initialUpload
+// 1 = user wants to upload cats
+// 0 = from initialUpload
+Vocabulary uploadCats (Vocabulary voc, string strin)
+{
+    string strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0, tracker2 = 0;
+    do
+    {
+        if (strin == " ")
+        {
+            tracker2 = 1;
+            title("Uploading Vocabulary from a File");
+            cout << "Please enter the filename you would like to upload the vocabulary\n";
+            cout << "set(s) from (Or enter 'c' to cancel): ";
+            getline(cin, strin);
+
+            if (strin == "c" || strin == "C")
+            {
+                return voc;
+            }
+        }
+
+
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+        char	*temp_line = new char[strin.size() + 1];	/* +1 char for '\0' terminator */
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+        strcpy(temp_line, strin.c_str());
+
+        try
+        {
+            /*~~~~~~~~~~~*/
+            ifstream	IN;
+            /*~~~~~~~~~~~*/
+
+            IN.exceptions(ifstream::eofbit | ifstream::failbit | ifstream::badbit);
+            IN.open(temp_line);
+
+            /*
+             * ifstream IN (temp_line);
+             */
+            // IN >> intin2;
+
+
+            getline(IN, str);
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /* This code converts from string to number safely. */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+
+            myStream >> intin2;
+
+
+            For(w, 0, intin2)
+            {
+                if (voc.getNumCats () < 100)
+                {
+                    getline (IN, strin);
+                    //  IN >> strin;
+
+                    voc.addVocabCat(strin);
+
+                    getline(IN, str);
+
+                    /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                    /* This code converts from string to number safely. */
+                    stringstream	myStream(str);
+                    /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+
+                    myStream >> intin;
+
+                    //IN >> intin;
+                    
+                    if (intin > 100)
+                    {
+                              cout << endl;
+                     cout << "Since a vocabulary set can only have a maximum of 100 vocabulary terms, only\nthe first 100 vocabulary terms will be uploaded.";
+                     cout << endl;
+                     cout << endl;
+                    }
+                                 
+                    For(g, 0, intin)
+                    {
+                        getline (IN, strin);
+                        getline (IN, strin2);
+
+                    
+                        voc.addVocab(voc.getNumCats() - 1, strin, strin2);
+                    }
+                }
+                
+                else
+                {
+                    title ("Error!");
+                    cout << "You already have 100 vocabulary sets in running! You may not have more than 100 vocabulary sets running. \n";
+
+                    cout << "If you wish to add a new category, you must remove a vocabulary set\n";
+                    cout << "or re-run the program.\n";
+                    cout << endl;
+
+                    cout << "Please read the 'Instructions and Tips' section for more details on other limits of the program.";
+                    cout << endl;
+                    system ("pause");
+
+                    return voc;
+                }
+
+            }
+
+            IN.close();
+            tracker = 0;
+        }
+        catch (ifstream::failure e)
+        {
+            if (tracker2 == 1) // So the program doesn't crash even if the initialUpload files are missing or modified
+            {
+                cout << endl;
+                cout << "Error: Cannot open the file!";
+                cout << endl;
+                cout << endl;
+                cout << "Note: The filename you enter must include the '.voc'.";
+
+                tracker = 1;
+                cout << endl;
+                cout << endl;
+                strin = " ";
+                system("pause");
+            }
+
+        }
+    } while (tracker == 1);
+
+    if (tracker2 == 1)
+    {
+        cout << endl;
+        cout << "The vocabulary set(s) have been successfully uploaded!" << endl;
+        cout << endl;
+        system("pause");
+    }
+    return voc;
+}
+
+//It's a special tab in that if the length of the string is greater than the tab desired, then
+// it just adds a space instead (since this function is to list vocabulary term and its
+// corresponding term, so it is not a normal tab function)
+string tab (string word, int num)
+{
+
+    if (word.length () < num)
+    {
+
+        int num2 =(num - word.length ());
+        for (int u = 0; u< num2; u++)
+        {
+
+            word = word + " ";
+
+        }
+    }
+    else
+    {
+        word += "\n";
+    }
+    return word;
+}
+
+
+Vocabulary saveCats (Vocabulary voc)
+{
+    if (voc.getNumCats () >= 1)
+    {
+        string		strin = "", strin2 = "", str = "";			/* string inputs */
+        int			intin = 0, intin2 = 0, tracker = 0;
+
+
+        title("Saving Vocabulary to a File");
+
+        cout << "Please enter the filename you would like to save the vocabulary set(s)\n";
+        cout << "in- DO NOT INCLUDE THE EXTENSION (Or enter 'c' to cancel): ";
+        getline(cin, strin);
+
+        if (strin == "c" || strin == "C")
+        {
+            return voc;
+        }
+        strin = strin + ".voc";
+
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+        char	*temp_line = new char[strin.size() + 1];		/* +1 char for '\0' terminator */
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+        strcpy(temp_line, strin.c_str());
+
+        /*~~~~~~~~~~~~~~~~~~~~~~~*/
+        ofstream	OUT(temp_line);
+        /*~~~~~~~~~~~~~~~~~~~~~~~*/
+
+        title("Saving Vocabulary to a File");
+
+        if (voc.getNumCats() == 1)
+        {
+            OUT << "1" << endl;
+            OUT << voc.getVocabCat(0).getCat() << endl;			/* Name of cat */
+            OUT << voc.getVocabCat(0).getNumTerms() << endl;	/* number of terms */
+
+            For(w, 0, voc.getVocabCat(0).getNumTerms())
+            {
+                OUT << voc.getVocabCat(0).getVocab(w).getFrench() << endl;	/* prints French first */
+                OUT << voc.getVocabCat(0).getVocab(w).getEnglish() << endl;
+            }
+        }
+        else
+        {
+            while (true)
+            {
+                while (true)
+                {
+                    title("Saving Vocabulary to a File");
+                    For(w, 0, voc.getNumCats())
+                    {
+                        cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+                    }
+
+                    cout << endl;
+                    cout << "How many vocabulary set(s) would you like to save? ";
+
+                    getline(cin, str);
+
+                    /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                    /* This code converts from string to number safely. */
+                    stringstream	myStream(str);
+                    /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                    if (myStream >> intin2) break;
+                    cout << "Invalid number - please try again." << endl;
+                }
+                if ( intin2 <= voc.getNumCats()) break;
+                cout << endl;
+                cout << "You do not have " << intin2 << " sets to save!\n";
+                cout << endl;
+                system ("pause");
+
+            }
+
+            OUT << intin2 << endl;	/* The number of vocab sets saved */
+            cout << endl;
+            For(w, 0, intin2)
+            {
+                cout <<
+                     "Please choose a vocabulary set by entering a number: ";
+                while (true)
+                {
+                    while (true)
+                    {
+                        getline(cin, str);
+
+                        /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                        /* This code converts from string to number safely. */
+                        stringstream	myStream(str);
+                        /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                        if (myStream >> intin) break;
+                        cout << "Invalid number - please try again." << endl;
+                    }
+                    if (intin > 0 && intin <= voc.getNumCats()) break;
+                    cout << endl;
+                    cout << "You must enter the number of a vocabulary set!\n";
+                    cout << endl;
+                    system ("pause");
+                    cout << endl;
+
+                }
+
+                OUT << voc.getVocabCat(intin - 1).getCat() << endl;			/* Name of cat */
+                OUT << voc.getVocabCat(intin - 1).getNumTerms() << endl;	/* number of terms */
+
+                For(w, 0, voc.getVocabCat(intin - 1).getNumTerms())
+                {
+                    OUT << voc.getVocabCat(intin - 1).getVocab(w).getFrench() << endl;	/* prints French first */
+                    OUT << voc.getVocabCat(intin - 1).getVocab(w).getEnglish() << endl;
+                }
+
+                cout << endl;
+            }
+        }
+
+        /* Writing to a file */
+        OUT.close();
+
+        cout << "Your vocabulary set(s) have been successfully saved in the file " << strin << endl << endl;
+        cout <<
+             "IMPORTANT NOTE: When you upload this vocabulary set, the file name you enter\n";
+        cout << "must match exactly with " <<
+             strin <<
+             "!";
+        cout << endl << endl;
+        system("pause");
+    }
+    return voc;
+}
+
+Vocabulary review (Vocabulary voc)
+{
+    if (voc.getNumCats () >= 1)
+    {
+        string		strin = "", strin2 = "", str = "";			/* string inputs */
+        int			intin = 0, intin2 = 1, tracker = 0, lorder = 0; //intin2 = # of cats reviewing
+        int order [1000];
+//intin3 = # of terms?
+        string french [1000], english [1000];
+        for (int u = 0; u < 1000; u++)
+        {
+            order [u] = 999;
+            french [u] = "";
+            english [u] = "";
+        }
+        
+        //tracker = 0 the first loop, 1 after the first loop for the wording of the instructions
+        do
+        {
+            while (true)
+            {
+
+                while (true)
+                {
+
+                    title("Start Review Session");
+
+                    For(w, 0, voc.getNumCats()) //Do the same thing as edit a cat - if there's no one cat, skip this step
+                    {
+                        cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+                    }
+
+                    cout << endl;
+                    
+                    if (tracker == 0)
+                    {
+                    cout <<
+                         "Please choose a vocabulary set to review by entering a number (Or enter 'e' to\nexit to the flash cards menu): ";
+                    getline(cin, str);
+                    if (str == "e" || str == "E")
+                    {
+                        return voc;
+                    }
+                    }
+                    else 
+                    {
+                         cout <<
+                         "Please choose another vocabulary set to add to the review by entering a number\n(Or enter 'c' to continue if you don't want to add any more vocabulary sets): ";
+                         getline(cin, str);
+                    }
+                    if ((str == "c" || str == "C") && tracker != 0)
+                    {
+                        break;
+                    }
+
+                      
+                    /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                    /*
+                     * This code converts from string to number safely.
+                     */
+                    stringstream	myStream(str);
+                    /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                    if (myStream >> intin) break; //Cannot use intin again!
+                    cout << "Please enter a valid number!" << endl;
+                }
+                
+                if ((str == "c" || str == "C") && tracker != 0)
+                    {
+                        break;
+                    }
+                if (intin > 0 && intin <= voc.getNumCats()) break;
+                cout << endl;
+                cout << "You must enter the number of a vocabulary set!\n";
+                cout << endl;
+                system ("pause");
+
+            }
+
+             if ((str == "c" || str == "C") && tracker != 0)
+                    {
+                        break;
+                    }
+
+            if (voc.getVocabCat(intin - 1).getNumTerms() < 1)
+            {
+
+                title ("Error!");
+                cout << "There is no existing vocabulary terms to review!\n";
+                cout << endl;
+                cout << "Please add a vocabulary term by going to the 'Add new term(s)'\n";
+                cout << "section.";
+                cout << endl << endl;
+                system ("pause");
+                return voc;
+            }
+
+
+
+            srand((unsigned)time(0));
+
+
+
+
+//system ("pause");
+            for (int index=0; index< voc.getVocabCat(intin - 1).getNumTerms() ; index++)
+            {
+                if (lorder < 1000)
+                {
+
+                    english [lorder] = voc.getVocabCat(intin-1).getVocab(index).getEnglish();
+                    french [lorder] = voc.getVocabCat(intin-1).getVocab(index).getFrench();
+                    lorder++;
+                }
+                else
+                {
+                    cout << "You already have 1000 cards!\n" << endl;
+                    cout << "You cannot add any more." << endl;
+                    cout << endl;
+                    system ("pause");
+                    tracker = 1;
+                    break;
+                }
+
+            }
+
+             tracker = 1;
+
+
+        }
+        while (strin != "C" || strin != "c");
+
+
+        for (int index=0; index< lorder; index++)
+        {
+            order [index] = gorder (order, index, lorder);
+
+        }
+        while (true)
+        {
+            title ("Start Review Session"); //More lines - ask them whether they want instructions (and make an instructions page if they want it)
+            //E.g., case doesn't matter, 'to' doesn't matter
+
+
+            cout << "English term first or French term first (Please enter 'E' for English or\n'F' for French)?: ";
+            getline (cin, strin);
+            strin = toUpper (strin);
+
+            if (strin != "E" && strin != "F")
+            {
+                cout << endl;
+                cout << "You must enter either 'E' or 'F'!";
+                cout << endl;
+                cout << endl;
+                system ("pause");
+
+            }
+            else
+            {
+                break;
+            }
+
+        }
+        cout << endl;
+
+
+        for (int y = 0; y < lorder; y++)
+        {
+
+        
+                title ("Review Session");
+         
+            if (strin == "E")
+            {
+
+                cout << english [order [y]] << endl << endl;
+
+            }
+            else
+            {
+                cout << french [order [y]] << endl << endl;
+
+            }
+
+            cout << "Please press any key to flip...";
+            system ("pause>nul");
+           
+            if (strin == "E")
+            {
+                       title ("Review Session - " + english [order [y]]);
+                cout << french [order [y]]  << endl << endl;
+            }
+            else
+            {
+                 title ("Review Session - " + french [order [y]] );
+                cout << english [order [y]]<< endl << endl;
+
+            }
+            cout << "'L' - repeat card later\n";
+            cout << "'P' - repeat previous card now\n";
+            cout << "'Q' - Quit to flash cards menu\n";
+            cout << "Any other key - next card\n";
+            cout << endl;
+            cout << "Please enter a key: ";
+           // cout << "Repeat later (Please enter 'L' for 'Yes', or 'Q' to 'Quit', or any other key for 'No')? ";
+            getline (cin, strin2);
+            strin2 = toUpper (strin2);
+            cout << endl;
+            if (strin2 == "Q")
+            {
+                cout << "Hope you had fun!";
+                cout << endl;
+                cout << endl;
+                system ("pause");
+                break;
+            }
+            if (strin2 == "P")
+            {
+                 if (  y!= 0)
+                 {    
+                 y--; 
+                 y--;  
+                 }
+                 else 
+                 {
+                      cout << "This is the first card!";
+                      cout << endl;
+                      cout << endl;
+                      system ("pause");
+                      
+                  }
+            }
+            if (strin2 == "L")
+            {
+                if (lorder < 1000)
+                {
+                    order [lorder] = order [y];
+                    lorder++;
+                }
+                else
+                {
+                    cout << "Sorry, there's not enough room to repeat later!";
+                    cout << endl;
+                    cout << endl;
+                    system ("pause");
+                }
+            }
+
+
+        }
+    }
+    return voc;
+
+}
+
+Vocabulary removeSet (Vocabulary voc)
+{
+    if (voc.getNumCats () >= 1)
+    {
+        string		strin = "", strin2 = "", str = "";			/* string inputs */
+        int			intin = 0, intin2 = 0, tracker = 0;
+        while (true)
+        {
+            while (true)
+            {
+                title("Remove a Vocabulary Set");
+                For(w, 0, voc.getNumCats()) //Do the same thing as edit a cat - if there's no one cat, skip this step
+                {
+                    cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+                }
+
+                cout << endl;
+                cout <<
+                     "Please choose a vocabulary set to remove by entering a number (Or enter 'c' to cancel): ";
+                getline(cin, str);
+
+                if (str == "c" || str == "C")
+                {
+                    return voc;
+                }
+
+
+
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+                /*
+                 * This code converts from string to number safely.
+                 */
+                stringstream	myStream(str);
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+                if (myStream >> intin) break; //Cannot use intin again!
+                cout << "Please enter a valid number!" << endl;
+            }
+            if (intin > 0 && intin <= voc.getNumCats()) break;
+            cout << endl;
+            cout << endl;
+            cout << "You must enter the number of a vocabulary set!\n";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+
+        }
+
+        voc.removeVocabCat (intin);
+         cout << endl;
+        cout << "The vocabulary set has been successfully removed!" << endl;
+        cout << endl;
+        system ("pause");
+    }
+    return voc;
+}
+Vocabulary vocabMenu (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+
+    do
+    {
+        while (true)
+        {
+            title("Flash Cards Menu");
+
+            cout << "1. Add a Vocabulary Category " << endl;
+            cout << "2. Edit a Vocabulary Set " << endl;
+            cout << "3. Remove a Vocabulary Set " << endl;
+            cout << "4. Upload from a File " << endl;
+            cout << "5. Save to a File" << endl;				/* users get to choose which sets to save */
+            cout << "6. Start a Review Session " << endl;
+            cout << "7. Back to Main Menu " << endl << endl;
+
+            cout << "Please choose a number between 1 and 7: ";
+
+            getline(cin, str);
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /* This code converts from string to number safely. */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+            if (myStream >> intin) break;
+            cout << endl;
+            cout << "Invalid number - please try again." << endl;
+            cout << endl;
+            system ("pause");
+        }
+
+        if (intin == 1)
+        {
+            if (voc.getNumCats() < 100)
+            {
+                voc = addCat (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "You already have 100 vocabulary sets running! You may not have more\n";
+                cout << "than 100 vocabulary sets running. If you wish to add a new category,\n";
+                cout << "you must remove a vocabulary set or re-run the program.\n";
+                cout << endl;
+
+                cout << "Please read the 'Instructions and Tips' section for more details on other limits of the program.";
+                cout << endl;
+                system ("pause");
+            }
+
+        }
+        /*
+        * intin - stores the vocab set ;
+        * intin2 - stores the choice from the menu
+        */
+
+        else if (intin == 2)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = editCat (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to edit!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 3)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = removeSet (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to remove!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 4)
+        {
+            if (voc.getNumCats() < 100)
+            {
+                voc = uploadCats (voc, " ");
+            }
+            else
+            {
+                title ("Error!");
+                cout << "You already have 100 vocabulary sets running! You may not have more\n";
+                cout << "than 100 vocabulary sets running. If you wish to add a new category,\n";
+                cout << "you must remove a vocabulary set or re-run the program.\n";
+                cout << endl;
+
+                cout << "Please read the 'Instructions and Tips' section for more details on other limits of the program.";
+                cout << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 5)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = saveCats (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to save!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 6)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = review (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to review!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section in the flash cards menu or by uploading vocabulary sets.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 7)
+        {
+            break;
+        }
+        else
+        {
+            cout << endl;
+            cout << "You must enter a number between 1 and 7!";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+
+        }
+    }
+    while (intin != 7);
+    return voc;
+
+
+}
+
+Vocabulary learnVocab (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+
+    while (true)
+    {
+        while (true)
+        {
+            title("Learn Vocabulary");
+            For(w, 0, voc.getNumCats()) //Do the same thing as edit a cat - if there's no one cat, skip this step
+            {
+                cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+            }
+
+            cout << endl;
+            cout <<
+                 "Please choose a vocabulary set to learn by entering a number (Or enter 'c' to cancel): ";
+            getline(cin, str);
+            if (str == "c" || str == "C")
+            {
+                return voc;
+            }
+
+
+
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /*
+             * This code converts from string to number safely.
+             */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+            if (myStream >> intin) break; //Cannot use intin again!
+            cout << "Please enter a valid number!" << endl;
+        }
+        if (intin > 0 && intin <= voc.getNumCats()) break;
+        cout << endl;
+        cout << "You must enter the number of a vocabulary set!\n";
+        cout << endl;
+        system ("pause");
+
+    }
+
+    title ("Learn Vocabulary " + voc.getVocabCat (intin-1).getCat ());
+    cout << tab ("French Term", 40) << "English Term \n" ;
+    cout << endl;
+    For (w, 0, voc.getVocabCat (intin-1).getNumTerms())
+    {
+        if (w < 9)
+        {
+            strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+            cout << w+1 << ". " << tab (strin, 37);
+        }
+        else if (w >= 9 && w < 99)
+        {
+            strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+            cout << w+1 << ". " << tab (strin, 36);
+        }
+        else
+        {
+            strin = removeSpace (voc.getVocabCat(intin-1).getVocab(w).getFrench());
+            cout << w+1 << ". " << tab (strin, 35);
+        }
+
+        cout << voc.getVocabCat(intin-1).getVocab(w).getEnglish() << "\n";
+
+    }
+    cout << endl;
+    cout << "Press any key to return to the main menu...";
+    system ("pause>nul");
+
+    return voc;
+}
+
+char to_upper ( char ch )
+{
+    static char upper[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static char lower[] = "abcdefghijklmnopqrstuvwxyz";
+
+    for ( int i = 0; lower[i] != '\0'; i++ ) {
+        if ( ch == lower[i] )
+            return upper[i];
+    }
+    return ch;
+}
+
+string toUpper (string strin)
+{
+    for (int k = 0; k < strin.length() ; k++)
+    {
+        strin [k] = to_upper (strin [k]);
+    }
+    return strin;
+}
+
+
+Vocabulary viewHighScores (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "", cat = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+    /* Loops the edit vocab */
+    title("View High Scores - Choose a Category");
+
+    For(w, 0, voc.getNumCats())
+    {
+        cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+    }
+
+    cout << endl;
+    cout << "Please choose a vocabulary set to view the high score for by entering a\n";
+    cout << "number (Or enter 'c' to cancel): ";
+    getline(cin, str);
+
+    if (str == "c" || str == "C")
+    {
+        return voc;
+    }
+
+    while (true)
+    {
+
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+        /* This code converts from string to number safely. */
+        stringstream	myStream(str);
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+        if (myStream >> intin) break;
+        cout << "Invalid number - please try again." << endl;
+    }
+
+
+    title ("High Scores - " + voc.getVocabCat (intin-1).getCat ());
+
+    int numHigh = 0;
+    cat = voc.getVocabCat (intin-1).getCat () + ".hvoc";
+    char	*temp_line = new char[cat.size() + 1];	/* +1 char for '\0' terminator */
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    try //see if it went in here
+    {
+
+
+        strcpy(temp_line, cat.c_str());
+        /*~~~~~~~~~~~*/
+        ifstream	IN;
+        /*~~~~~~~~~~~*/
+
+        IN.exceptions(ifstream::eofbit | ifstream::failbit | ifstream::badbit);
+        IN.open(temp_line);
+
+        //variable declaration
+        string in, in2;
+        getline(IN, in);
+        stringstream str (in);
+        str >> numHigh;
+        string names [10];
+
+        double percents [10];
+
+
+        //reads the previous high score list from the text file and stores it names [] and levels []
+        for (int p = 0; p< numHigh; p++)
+        {
+
+            getline(IN, names[p]);
+            getline(IN, in2);
+            stringstream str2 (in2);
+            str2 >> percents [p];
+        }
+
+
+
+        //outputs onto the screen the updated high score list
+        system ("CLS");
+        cout << "High Scores! \n\n";
+        cout << tab ("Name", 50) << tab ("Percent", 10) << endl;
+
+        //going through the 10 high scores
+        for (int j= 0; j< numHigh; j++) //Fix the formatting of this if you have time?
+        {
+            stringstream ss;
+            string pcent;
+            ss << percents [j];
+            ss >> pcent;
+            //If the user completed the mission
+            if (percents [j] >= 90)
+            {
+                cout << tab (names [j], 50) << tab (pcent, 10) << "Super Pro" << endl;
+            }
+
+            //If the user finished in the Ace level
+            else if (percents [j] >= 80)
+            {
+                cout <<tab (names [j], 50)<<  tab (pcent, 10) << "Pro" << endl;
+            }
+
+            //If the user finished in the King level
+            else if (percents [j] >= 70)
+            {
+                cout <<tab (names [j], 50) <<  tab (pcent, 10) << "Amateur" << endl;
+            }
+            else if (percents [j] >= 50)
+            {
+                cout << tab (names [j], 50)  <<  tab (pcent, 10) << "Novice" << endl;
+            }
+            //If the user finished in the Rookie level
+            else
+            {
+                cout << tab (names [j], 50)<<  tab (pcent, 10)<<  endl;
+            }
+        }
+        cout << endl;
+        system ("pause");
+
+
+    }
+    catch (ifstream::failure e)
+    {
+        cout << "ERROR! Cannot find file! High scores are unavailable.";
+        cout << endl << endl;
+        system ("pause");
+    }
+    return voc;
+}
+
+void highScore (double percent, string cat)
+{
+    int numHigh = 0;
+    int tracker = 0;
+    string username = "";
+    cat = cat + ".hvoc";
+    char	*temp_line = new char[cat.size() + 1];	/* +1 char for '\0' terminator */
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    try //see if it went in here
+    {
+
+
+        strcpy(temp_line, cat.c_str());
+        /*~~~~~~~~~~~*/
+        ifstream	IN;
+        /*~~~~~~~~~~~*/
+
+        IN.exceptions(ifstream::eofbit | ifstream::failbit | ifstream::badbit);
+        IN.open(temp_line);
+
+        //variable declaration
+        string in, in2;
+        getline(IN, in);
+        stringstream str (in);
+        str >> numHigh;
+        string names [10];
+
+        double percents [10];
+
+
+        //reads the previous high score list from the text file and stores it names [] and levels []
+        for (int p = 0; p< numHigh; p++)
+        {
+
+            getline(IN, names[p]);
+            getline(IN, in2);
+            stringstream str2 (in2);
+            str2 >> percents [p];
+        }
+
+
+
+        if (numHigh <= 10 && numHigh >0)
+        {
+            //Searches for whether or not to put the current username on the high score list, and if so, where
+            for (int x = 0; x<numHigh; x++)
+            {
+
+                //if the current user's score matches a high score
+                if ( (percents[x] == percent) && (x!= 9))
+                {
+                    cout << endl;
+                    cout << "Please enter your name: ";
+                    getline (cin, username);
+                    //adds the current user to the high score list
+                    for (int n = 8; n >= x ; n--)
+                    {
+                        names [n+1] = names [n];
+                        percents [n+1] = percents [n];
+                    }
+                    names [x] = username;
+                    percents [x] = percent;
+                    if (numHigh < 10)
+                    {
+                        numHigh++;
+                    }
+                    tracker = 1;
+                    break;
+                }
+
+            }
+            for (int x = 0; x< numHigh; x++)
+            {
+                if (percent > percents[x])
+                {
+                    cout << endl;
+                    cout << "Please enter your name: ";
+                    getline (cin, username);
+
+                    if (x!= 9)
+                    {
+                        //adds the current user to the high score list
+                        for (int n = 8; n >= x ; n--)
+                        {
+                            names [n+1] = names [n];
+                            percents [n+1] = percents [n];
+
+                        }
+                        names [x] = username;
+                        percents [x] = percent;
+                    }
+                    else
+                    {
+                        names [9] = username;
+                        percents [9] = percent;
+                    }
+                    system ("pause");
+                    if (numHigh < 10)
+                    {
+                        numHigh++;
+                    }
+                    tracker = 1;
+                    break;
+                }
+            }
+
+        }
+        if (tracker == 0 && numHigh < 10)
+        {
+            cout << endl;
+            cout << "Please enter your name: ";
+            getline (cin, username);
+            names [numHigh] = username;
+            percents [numHigh] = percent;
+            numHigh++;
+
+        }
+
+
+        //outputs onto the screen the updated high score list
+        system ("CLS");
+        cout << "High Scores! \n\n";
+        cout << tab ("Name", 50) << tab ("Percent", 10) << endl;
+
+        //going through the 10 high scores
+        for (int j= 0; j< numHigh; j++) //Fix the formatting of this if you have time?
+        {
+            stringstream ss;
+            string pcent;
+            ss << percents [j];
+            ss >> pcent;
+            //If the user completed the mission
+            if (percents [j] >= 90)
+            {
+                cout << tab (names [j], 50) << tab (pcent, 10) << "Super Pro" << endl;
+            }
+
+            //If the user finished in the Ace level
+            else if (percents [j] >= 80)
+            {
+                cout <<tab (names [j], 50)<<  tab (pcent, 10) << "Pro" << endl;
+            }
+
+            //If the user finished in the King level
+            else if (percents [j] >= 70)
+            {
+                cout <<tab (names [j], 50) <<  tab (pcent, 10) << "Amateur" << endl;
+            }
+            else if (percents [j] >= 50)
+            {
+                cout << tab (names [j], 50)  <<  tab (pcent, 10) << "Novice" << endl;
+            }
+            //If the user finished in the Rookie level
+            else
+            {
+                cout << tab (names [j], 50)<<  tab (pcent, 10)<<  endl;
+            }
+
+
+        }
+        cout << endl;
+        system ("pause");
+        ofstream OUT(temp_line);
+        OUT << numHigh << endl;
+        //writes the updated high score list onto the text file
+        for (int x = 0; x<numHigh; x++)
+        {
+            OUT << names [x] << endl;
+            OUT << percents [x]<< endl;
+        }
+
+    }
+    catch (ifstream::failure e)
+    {
+        cout << "ERROR! Cannot find file! High scores are unavailable.";
+        cout << endl << endl;
+        system ("pause");
+    }
+
+}
+
+string removeSpace (string strin)
+{
+    while (strin [strin.length ()-1]== ' ')
+    {
+        strin = strin.substr (0, strin.length () - 1);
+    }
+    return strin;
+}
+
+Vocabulary test (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0, lorder = 0;
+    while (true)
+    {
+        while (true)
+        {
+            title("Vocabulary Test");
+            For(w, 0, voc.getNumCats())
+            {
+                cout << w + 1 << ". " << voc.getVocabCat(w).getCat() << endl;
+            }
+
+            cout << endl;
+            cout <<
+                 "Please choose a vocabulary set for the test by entering a number (Or enter\n'c' to cancel): ";
+            getline(cin, str);
+            if (str == "c" || str == "C")
+            {
+                return voc;
+            }
+
+
+
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /*
+             * This code converts from string to number safely.
+             */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+            if (myStream >> intin) break; //Cannot use intin again!
+            cout << "Please enter a valid number!" << endl;
+        }
+        if (intin > 0 && intin <= voc.getNumCats()) break;
+        cout << endl;
+        cout << "You must enter the number of a vocabulary set!\n";
+        cout << endl;
+        system ("pause");
+
+    }
+
+    while (true)
+    {
+        while (true)
+        {
+            title ("Vocabulary Test Menu - " + voc.getVocabCat(intin-1).getCat ());
+
+            cout << "1. Show the English term and type in the French term" << endl;
+            cout << "2. Show the French term and type in the English term" << endl << endl;
+
+            cout << "Please enter either 1 or 2: ";
+
+
+            getline(cin, str);
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /*
+             * This code converts from string to number safely.
+             */
+            stringstream	myStream(str);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+            if (myStream >> intin2) break; //Cannot use intin again!
+            cout << "Please enter a valid number!" << endl;
+        }
+        if (intin2 == 1 || intin2 == 2) break;
+        cout << endl;
+        cout << "You must enter either 1 or 2!\n";
+        cout << endl;
+        system ("pause");
+
+    }
+
+
+    int order [300];
+
+    for (int u = 0; u < 300; u++)
+    {
+        order [u] = 999;
+    }
+    srand ( time(NULL) );
+
+
+    for (int index=0; index< voc.getVocabCat(intin - 1).getNumTerms() ; index++)
+    {
+        order [index] = gorder (order, index, voc.getVocabCat(intin - 1).getNumTerms());
+    }
+
+
+    lorder = voc.getVocabCat(intin - 1).getNumTerms();
+//Add more lines- add an instructions section? e.g., "to", case, accents
+    int score = 0;
+    for (int y = 0; y < lorder; y++) //Add more lines - 'to' isn't necessary for infinitives
+    {
+
+        title ("Vocabulary Test - " + voc.getVocabCat(intin-1).getCat ());
+
+        if (intin2 == 1)
+        {
+
+            cout << voc.getVocabCat(intin-1).getVocab(order [y]).getEnglish() << endl << endl;
+            cout << "Please enter the corresponding French term: ";
+            getline (cin, strin);
+
+            cout << endl;
+
+            strin = toUpper (strin);
+            strin = removeSpace (strin);
+            if (strin == removeSpace (toUpper (voc.getVocabCat(intin-1).getVocab(order [y]).getFrench())))
+            {
+                cout << "It is correct! " << endl;
+                score++;
+            }
+            else
+            {
+                cout << "Sorry, it is incorrect. " << endl;
+                cout << "The answer was " << voc.getVocabCat(intin-1).getVocab(order [y]).getFrench() << endl;
+            }
+
+        }
+        else
+        {
+            cout << voc.getVocabCat(intin-1).getVocab(order [y]).getFrench() << endl << endl;
+            cout << "Please enter the corresponding English term: ";
+            getline (cin, strin);
+
+            cout << endl;
+
+            strin = toUpper (strin);
+            strin = removeSpace (strin);
+            if (strin == removeSpace (toUpper (voc.getVocabCat(intin-1).getVocab(order [y]).getEnglish())))
+            {
+                cout << "It is correct! " << endl;
+                score++;
+            }
+            else
+            {
+                cout << "Sorry, it is incorrect. " << endl;
+                cout << endl;
+                cout << "The answer was " << voc.getVocabCat(intin-1).getVocab(order [y]).getEnglish() << endl;
+            }
+        }
+        cout << endl;
+        system ("pause");
+    }
+
+    title ("Score");
+    cout << "Your score is " << score << "/" << lorder << endl;
+    cout << endl;
+    double percent = (double) score/lorder * 100;
+    if (percent > 90)
+    {
+        cout << "Congratulations! You got " << percent << " percent!" << endl;
+    }
+    else if (percent > 80)
+    {
+        cout << "Very well done! You got " << percent << " percent!" << endl;
+    }
+    else if (percent > 70)
+    {
+        cout << "Well done! You got " << percent << " percent." << endl;
+    }
+    else if (percent > 60)
+    {
+        cout << "You could've done better, but you still passed. You got " << percent << " percent." << endl;
+    }
+    else if (percent > 50)
+    {
+        cout << "You barely passed. You got " <<percent << " percent!" << endl;
+    }
+    else
+    {
+        cout << "You failed! You got " << percent<< " percent!" << endl;
+    }
+    cout << endl;
+    system ("pause");
+
+    highScore (percent, voc.getVocabCat(intin-1).getCat ());
+    return voc;
+}
+
+void goodBye ()
+{
+    title ("Goodbye!");
+    cout << "Thank you for using Flash Card Machine!";
+    cout << endl;
+    cout << endl;
+    cout << "Hope you learned something!";
+    cout << endl;
+    cout << endl;
+    cout << "Program by: Ling-Sang Tse";
+    cout << endl;
+    cout << "Teacher: Mr. Sze";
+    cout << endl;
+    cout << "Course: ICS 4U1";
+    cout << endl;
+    cout << endl;
+    cout << "Press any key to close this window... ";
+}
+
+void introduction ()
+{
+    title ("Introduction");
+    cout << "Welcome to Flash Card Machine!";
+    cout << endl;
+    cout << endl;
+    cout << "This program is specifically designed to help you memorize French vocabulary!";
+    cout << endl;
+    cout << endl;
+    cout << "If this is your first time using this program, please visit the Instructions\n";
+    cout << "and Tips section in the main menu.";
+    cout << endl;
+    cout << endl;
+    cout << "Press any key to continue to the main menu...";
+    system ("pause>nul");
+
+}
+
+void tips (Vocabulary voc)
+{
+
+    string strin = "";
+    do
+    {
+        title ("Tips");
+
+        //First tip
+        cout << "1. Save the vocabulary sets often. Be careful that you do not enter a \n";
+        cout << "filename that already exists, or else the new set(s) will save on top \n";
+        cout << "of that file. When you enter the filename, be sure to record the filename\n";
+        cout << "because you will need to enter the filename exactly as you have entered it\n";
+        cout << "when you want to upload the set(s)!";
+        cout << endl;
+        cout << endl;
+
+        //Second tip
+        cout << "2. Avoid using vocabulary sets with the same names, or else you will forget\n";
+        cout << "which one is which! Also, if you enter add a vocabulary set with the same name\n";
+        cout << "as one that already has a high score file, the new vocabulary set's high score\n";
+        cout << "will replace the old one.";
+        cout << endl;
+        cout << endl;
+
+        //Third tip
+        cout << "3. When you review the vocabulary using flash cards, repeat the words every\n";
+        cout << "time you get them wrong. That is the best way to learn the hardest words.";
+        cout << endl;
+        cout << endl;
+
+        //Fourth tip
+        cout << "4. Although this program is designed for learning French vocabulary,\n";
+        cout << "it can be used for practically any subject that requires memorization!\n";
+        cout << "You can use it for practically anything in the 'Question-Answer' format.\n";
+        cout << "For example, the flash cards can also be used for short answer questions,\n";
+        cout << "fill in the blanks, multiple choice questions, and true and false questions.\n";
+        cout << "You can enter the 'Question' as the French term and the 'Answer' as the\n";
+        cout << "English term. The possibilities are endless!";
+        cout << endl << endl; //If you need more code, explain built-in examples on the next page
+
+        cout << "Press 'c' to return to the main menu or 'b' to go back: ";
+        getline (cin, strin);
+        strin = toUpper (strin);
+
+        if (strin == "C")
+        {
+            mainMenu (voc);
+        }
+        else if (strin == "B")
+        {
+            instructions2 (voc);
+        }
+        else
+        {
+            cout << endl;
+            cout << "You must press either either 'c' or 'b'!";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+        }
+    } while (strin != "C" && strin != "B");
+
+}
+
+void limits (Vocabulary voc)
+{
+    string strin = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0, tracker2 = 0;
+    do
+    {
+        title ("Limits of the Program");
+
+        //Main Menu functions
+
+        cout << "1. You may have a maximum of 100 vocabulary sets running in the program at any\n";
+        cout << "one point. If you would like to have more than 100 vocabulary sets, remove\n";
+        cout << "a set(s) or re-run the program.\n";
+        cout << endl;
+
+        cout << "2. You may have a maximum of 100 vocabulary terms within any vocabulary set\n";
+        cout << "running in the program at any one point. If you would like to have more than\n";
+        cout << "100 vocabulary terms within a vocabulary set, make another set.\n";
+        cout << endl;
+
+        cout << "3. You may flip a maximum of 1000 flash cards in any one sitting\n";
+        cout << "(including the repeated cards)\n";
+        cout << endl;
+
+        cout << "4. The high score lists each each vocabulary set will display a maximum of\n";
+        cout << "ten names (after all, it is a high score)\n";
+        cout << endl;
+
+        cout << "5. The files you upload onto the program *must* be created by the program\n";
+        cout << "and must not be modified.\n";
+        cout << endl;
+
+        cout << "Please press 'c' to learn some tips or 'b' to go back: ";
+        getline (cin, strin);
+
+        strin = toUpper (strin);
+
+        if (strin == "C")
+        {
+            tips(voc);
+        }
+        else if (strin == "B")
+        {
+            instructions2 (voc);
+        }
+        else
+        {
+            cout << endl;
+            cout << "You must press either either 'c' or 'b'!";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+        }
+    } while (strin != "C" && strin != "B");
+}
+
+void instructions2 (Vocabulary voc)
+{
+    string strin = "";
+    do
+    {
+        title ("Functions of the Program");
+
+        //Main Menu functions
+
+        //flash cards menu functions
+        cout << "Edit vocabulary sets and review using flash cards\n";
+        cout << "\t-Add new vocabulary sets\n";
+        cout << "\t-Edit vocabulary sets (The vocabulary sets you want to edit must\n";
+        cout << "\talready exist!)\n";
+        cout << endl;
+
+        //Edit flash cards menu
+        cout << "\t\t-Add new terms\n";
+        cout << "\t\t-Edit terms\n";
+        cout << "\t\t-Remove terms\n";
+        cout << "\t\t-Rename the vocabulary category\n";
+        cout << "\t\t-Switch to another vocabulary set to edit\n";
+
+        cout << "\t-Remove vocabulary sets\n";
+        cout << "\t-Upload vocabulary sets from a file (The file must already exist, \n";
+        cout << "\tbe produced by the program, and be in the same folder as the program!)\n";
+        cout << "\t-Save vocabulary sets to a file (The file must be saved into the\n";
+        cout << "\tsame folder as the program!)\n";
+        cout << "\t-Start a flash cards review session\n";
+
+        cout << "Learn a Vocabulary Set\n";
+        cout << "\t-See the lists of French terms and its corresponding English terms\n";
+        cout << endl;
+
+        cout << "Test yourself on the terms\n";
+        cout << "\t-See if you can make it onto the high score! \n";
+        cout << endl;
+
+        cout << "View High Scores\n";
+        cout << "\t-Choose a category to view the high scores \n";
+        cout << endl;
+
+        cout << "Please press 'c' to learn some tips or 'b' to go back: ";
+        getline (cin, strin);
+        strin = toUpper (strin);
+
+        if (strin == "C")
+        {
+            limits(voc);
+        }
+        else if (strin == "B")
+        {
+            instructionsMain (voc);
+        }
+        else
+        {
+            cout << endl;
+            cout << "You must press either either 'c' or 'b'!";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+        }
+    } while (strin != "C" && strin != "B");
+}
+
+void instructionsMain (Vocabulary voc)
+{
+    string strin = "";
+    do
+    {
+        title ("Instructions");
+        cout << "Welcome to Flash Card Machine!";
+        cout << endl;
+        cout << endl;
+
+        cout << "There are already sample built-in sets available for your convenience. These\n";
+        cout << "built-in sets allow you to try out the different functions of the programs.\n";
+        cout << "If this is your first time here, I suggest you to begin by adding your own\n";
+        cout << "flash cards by visiting 'Edit Vocabulary Sets and Review Using Flash Cards.'";
+        cout << endl;
+        cout << endl;
+
+        cout << "Unfortunately, this program cannot faciliate accents.\n";
+        cout << endl;
+        cout << endl;
+
+        cout << "Despite its name, this program allows you to do many things other than making\n";
+        cout << "flash cards. This suggestion will be expanded several pages later in the tips\n";
+        cout << "section. ";
+        cout << endl << endl;
+
+        cout << "Please press 'c' to continue or 'b' to go back: ";
+        getline (cin, strin);
+        strin = toUpper (strin);
+        if (strin == "C")
+        {
+            instructions2(voc);
+        }
+        else if (strin == "B")
+        {
+            mainMenu (voc);
+        }
+        else
+        {
+            cout << endl;
+            cout << "You must press either either 'C' or 'B'!";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+        }
+    } while (strin != "C" && strin != "B");
+
+}
+
+//Add a view high score
+Vocabulary mainMenu (Vocabulary voc)
+{
+    string		strin = "", strin2 = "", str = "";			/* string inputs */
+    int			intin = 0, intin2 = 0, tracker = 0;
+    do
+    {
+        title ("Main Menu");
+
+        cout << "1. Instructions and Tips";
+        cout << endl;
+        cout << "2. Edit Vocabulary Sets and Review Using Flash Cards ";
+        cout << endl;
+        cout << "3. Learn a Vocabulary Set ";
+        cout << endl;
+        cout << "4. Test";
+        cout << endl;				/* users get to choose which sets to save */
+        cout << "5. View High Scores";
+        cout << endl;
+        cout << "6. Quit ";
+        cout << endl;
+        cout << endl;
+
+        /* Add Quit */
+        cout << "Please choose a number between 1 and 6: ";
+        while (true)
+        {
+            getline(cin, str);
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            /* This code converts from string to number safely. */
+            stringstream	myStream(str);
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+            cout << endl;
+            if (myStream >> intin) break;
+            cout << "Invalid number - please try again:";
+
+        }
+        if (intin == 1)
+        {
+            instructionsMain (voc);
+        }
+        else if (intin == 2)
+        {
+
+            voc = vocabMenu (voc);
+        }
+
+        else if (intin == 3)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = learnVocab (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to learn!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section or by uploading vocabulary sets in the 'Edit Vocabulary Sets and\n";
+                cout << "Review Using Flash Cards' section.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+
+        }
+        else if (intin == 4)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = test (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to test on!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section or by uploading vocabulary sets in the 'Edit Vocabulary Sets and\n";
+                cout << "Review Using Flash Cards' section.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 5)
+        {
+            if (voc.getNumCats () >= 1)
+            {
+                voc = viewHighScores (voc);
+            }
+            else
+            {
+                title ("Error!");
+                cout << "There is no existing vocabulary category to view the high scores for!\n";
+                cout << endl;
+                cout << "Please add a vocabulary category by going to the 'Add a vocabulary category'\n";
+                cout << "section or by uploading vocabulary sets in the 'Edit Vocabulary Sets and\n";
+                cout << "Review Using Flash Cards' section.";
+                cout << endl << endl;
+                system ("pause");
+            }
+
+        }
+        else if (intin == 6)
+        {
+            break;
+        }
+        else
+        {
+            cout << "You must enter a number between 1 and 6!";
+            cout << endl;
+            cout << endl;
+            system ("pause");
+        }
+
+    }
+    while (intin != 6);
+    return voc;
+}
+
+/*
+=======================================================================================================================
+=======================================================================================================================
+*/
+
+Vocabulary initialUpload (Vocabulary voc)
+{
+    voc = uploadCats (voc, "Seasons.voc");
+    //  voc = uploadCats (voc, "1-20.voc");
+    //voc = uploadCats (voc, "Grammar.voc");
+    //voc = uploadCats (voc, "General Vocabulary List.voc");
+   // voc = uploadCats (voc, "Comparative Government Ch. 1-6.voc");
+    voc = uploadCats (voc, "French Vocabulary.voc");
+    return voc;
+}
+
+int main()	/* Make different functions for each screen */
+{
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    Vocabulary	voc;
+
+
+    voc = initialUpload (voc);
+
+    introduction ();
+    voc = mainMenu (voc); // change it to mainMenu afterwards
+    goodBye ();
+
+    system("pause > nul");
+    return 0;
+}
