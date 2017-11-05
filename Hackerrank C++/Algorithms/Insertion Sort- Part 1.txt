@@ -1,0 +1,149 @@
+#include <map>
+#include <set>
+#include <list>
+#include <cmath>
+#include <ctime>
+#include <deque>
+#include <queue>
+#include <stack>
+#include <bitset>
+#include <cstdio>
+#include <vector>
+#include <cstdlib>
+#include <numeric>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+//wrote a function for searching the index using recursion by splitting into halves each time. We don't need to use this for this challenge. 
+//returns the index where the item should be after the array is sorted
+int searchIndex (vector < int > ar, int firstIndex, int lastIndex, int item)
+{
+    int midIndex = (firstIndex + lastIndex) / 2;
+    cout << " Item is " << item << endl;
+    
+    if (firstIndex == 0 & lastIndex == 0)
+    {
+        cout << "if structure = -1, firstIndex = " << firstIndex << " lastIndex = " << lastIndex << " midIndex = " << midIndex << endl;
+        return 0;
+    }
+    else if (ar [midIndex] > item & ar [midIndex - 1] < item)
+    {
+        cout << "if structure = 0A, firstIndex = " << firstIndex << " lastIndex = " << lastIndex << " midIndex = " << midIndex << endl;
+        return midIndex;
+    }
+    else if (ar [midIndex] <= item & ar [midIndex + 1] >= item)
+    {
+        cout << "if structure = 0B, firstIndex = " << firstIndex << " lastIndex = " << lastIndex << " midIndex = " << midIndex << endl;
+     
+        return midIndex + 1;
+    }
+    else if (ar [midIndex] > item)
+    {
+        cout << "if structure = 1, firstIndex = " << firstIndex << " lastIndex = " << lastIndex << " midIndex = " << midIndex << endl;
+        return searchIndex (ar, firstIndex, midIndex, item);
+    }
+    else if (ar [lastIndex] <= item)
+    {
+        cout << "if structure = 4, firstIndex = " << firstIndex << " lastIndex = " << lastIndex << " midIndex = " << midIndex << endl;
+        return lastIndex + 1;
+    }
+    
+    else
+        //shouldn't come here
+    {
+        cout << "if structure = 3, firstIndex = " << firstIndex << " lastIndex = " << lastIndex << " midIndex = " << midIndex << endl;
+        return 0;
+    }
+}
+
+void printArray (vector <int> ar){
+    for (int i = 0; i < ar.size (); i++)
+    { cout << ar[i] << " ";}
+    cout << endl;
+    
+}
+
+void recurseArray (vector <int> ar, int currentIndex, int lastItem) {
+    int size = ar.size ();
+    
+    /*
+    if  (currentIndex == 0)
+    {
+        //errortrapping
+        cout << "currentIndex is " << currentIndex << endl;
+        printArray (ar);
+    } */
+    
+    if (lastItem >= ar [currentIndex -1])
+    {
+       // cout << "2nd if, currentIndex is " << currentIndex << "last item is " << lastItem << endl;
+        
+        ar [currentIndex] = lastItem;
+        printArray (ar);
+    }
+    else if (lastItem < ar [currentIndex])
+    {
+        ar [currentIndex] = ar [currentIndex -1];
+        printArray (ar);
+        
+        //errortrapping
+      //  cout << "currentIndex is " << currentIndex << " last item is " << lastItem << " ar[currentIndex] is " << ar[currentIndex] << endl;
+            
+        recurseArray (ar, currentIndex - 1, lastItem);
+    }
+    else 
+    {
+        //shouldn't come here
+        cout << "currentIndex is " << currentIndex << "last item is " << lastItem << endl;
+        
+        ar [currentIndex +1] = lastItem;
+        printArray (ar);
+    }
+}
+
+
+void insertionSort(vector <int>  ar) {
+    int size = ar.size ();
+    int lastItem = ar [size-1];
+   // int insertIndex = searchIndex (ar, 0, size-2, ar[size-1]);
+
+    if (lastItem >= ar [size -2] || size == 1 )
+        printArray (ar);
+    else 
+    {
+        ar [size-1] = ar[size-2];
+        printArray (ar);
+        recurseArray (ar, size-2, lastItem);
+    }    
+    
+      
+    /*
+    This shifts the whole array and inserts the last item into the index where it's supposed to be
+    for (int i = size -2; i >= insertIndex; i--)
+    {
+        ar [i+1] = ar[i];
+    }
+    ar [insertIndex ] = lastItem;
+    
+    //cout << "Index is " << insertIndex << " and new array is " ;
+    */
+    
+    
+    
+
+}
+int main(void) {
+    vector <int>  _ar;
+    int _ar_size;
+    cin >> _ar_size;
+    for(int _ar_i=0; _ar_i<_ar_size; _ar_i++) {
+        int _ar_tmp;
+        cin >> _ar_tmp;
+        _ar.push_back(_ar_tmp); 
+    }
+
+    insertionSort(_ar);
+    return 0;
+}

@@ -1,0 +1,66 @@
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <cmath>
+#include <cstdlib>
+#include <cassert>
+#include <iostream>
+using namespace std;
+
+void printArray (int* ar, int ar_size){
+    for (int i = 0; i < ar_size; i++)
+    { cout << ar[i] << " ";}
+    cout << endl;
+    
+}
+
+//indexElement = index of the item that needs to be sorted
+int insertIndex (int ar_size, int*ar, int item, int currentIndex){
+    
+    
+    if (currentIndex == 0)
+        return currentIndex;
+    
+    //peak to see if the item we have to sort is greater than or equal to the next item to the left. If it is, then we know the item belongs in currentIndex 
+    else if ( item >= ar [currentIndex-1] )
+    {
+        return currentIndex;
+    }
+    
+    //item is greater than the item to the left, so we have to bubble up
+    else
+    {
+        ar [currentIndex] = ar[currentIndex -1];
+        return insertIndex (ar_size, ar, item, currentIndex -1);
+    }
+}
+
+void insertionSort(int ar_size, int *  ar) {
+    
+    if (ar_size == 1) printArray (ar, ar_size);
+    else
+    {
+        for (int i = 1; i < ar_size; i++)
+        {
+            int item = ar[i];
+            ar[insertIndex (ar_size, ar, item, i )] = item;
+            printArray (ar, ar_size);
+        }
+    }
+
+}
+int main(void) {
+   
+    int _ar_size;
+    cin >> _ar_size;
+    //scanf("%d", &_ar_size);
+    int _ar[_ar_size], _ar_i;
+    for(_ar_i = 0; _ar_i < _ar_size; _ar_i++) { 
+        cin >> _ar[_ar_i];
+        //scanf("%d", &_ar[_ar_i]); 
+    }
+
+   insertionSort(_ar_size, _ar);
+   
+   return 0;
+}
